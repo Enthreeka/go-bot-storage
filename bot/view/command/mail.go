@@ -7,6 +7,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+// Удалить 	cellController controller.Cell
 type commandMail struct {
 	cellController controller.Cell
 

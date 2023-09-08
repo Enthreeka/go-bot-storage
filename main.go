@@ -49,8 +49,12 @@ func main() {
 	userController := controller.NewUserController(userRepo, log)
 	cellController := controller.NewCellController(cellRepo, log)
 
-	cellView := command.NewCellView(cellController, log)
-	mail := command.NewCommandMail(cellController, bot, log)
+	cellViewCommand := command.NewCellView(cellController, bot, log)
+	cellViewCallback := callback.NewCellView(cellController, bot, log)
+
+	commandMail := command.NewCommandMail(cellController, bot, log)
+	callbackMail := callback.NewCallbackMail(cellController, bot, log)
+
 	status := make(map[int64]*model.Status)
 	for update := range updates {
 		if update.Message != nil {
@@ -74,19 +78,19 @@ func main() {
 
 			switch update.Message.Command() {
 			case "start":
-				mail.BotSendStart(&msg)
+				commandMail.BotSendStart(&msg)
 			case "info":
-				mail.BotSendInfo(&msg)
+				commandMail.BotSendInfo(&msg)
 			default:
 				if userStatus, ok := status[userID]; ok {
 					if userStatus.Callback["create_cell"] == true {
 						userStatus.Callback["create_cell"] = false
 
-						cellView.CreateCell(&update, bot, &msg)
+						cellViewCommand.CreateCell(&update, &msg)
 
 					}
 				} else {
-					mail.BotSendDefault(&msg)
+					commandMail.BotSendDefault(&msg)
 				}
 			}
 		} else if update.CallbackQuery != nil {
@@ -94,11 +98,12 @@ func main() {
 
 			switch update.CallbackQuery.Data {
 			case "create_cell":
-
 				status[userID].Callback["create_cell"] = true
-				callback.BotSendTextCell(log, bot, userID)
+				callbackMail.BotSendTextCell(userID)
 			case "delete_cell":
-
+				status[userID].Callback["delete_cell"] = true
+			case "all_cell":
+				cellViewCallback.ShowCell(&update)
 			}
 		}
 
