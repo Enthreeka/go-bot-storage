@@ -3,6 +3,7 @@ package callback
 import (
 	"fmt"
 	"github.com/Enthreeka/go-bot-storage/bot/controller"
+	"github.com/Enthreeka/go-bot-storage/bot/view"
 	"github.com/Enthreeka/go-bot-storage/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -34,7 +35,7 @@ func (c *cellView) ShowCell(update *tgbotapi.Update) error {
 	var row []tgbotapi.InlineKeyboardButton
 
 	for _, el := range cells {
-		button := tgbotapi.NewInlineKeyboardButtonData(el.Name, fmt.Sprintf("%s_%d", el.Name, el.ID))
+		button := tgbotapi.NewInlineKeyboardButtonData(el.Name, fmt.Sprintf("cell_%s_%d", el.Name, el.ID))
 		row = append(row, button)
 		rows = append(rows, row)
 		row = []tgbotapi.InlineKeyboardButton{}
@@ -42,11 +43,18 @@ func (c *cellView) ShowCell(update *tgbotapi.Update) error {
 	}
 
 	rows = append(rows, row)
-	//rows = append(rows, []tgbotapi.InlineKeyboardButton{goToMainMenuKeyboard})
+	rows = append(rows, []tgbotapi.InlineKeyboardButton{view.MainMenuButtonData})
 
 	markup := tgbotapi.NewInlineKeyboardMarkup(rows...)
 
-	msg := tgbotapi.NewEditMessageReplyMarkup(userID, update.CallbackQuery.Message.MessageID, markup)
+	msg := tgbotapi.EditMessageTextConfig{
+		BaseEdit: tgbotapi.BaseEdit{
+			ChatID:    userID,
+			MessageID: update.CallbackQuery.Message.MessageID,
+		}, Text: "Главный раздел",
+	}
+
+	msg.ReplyMarkup = &markup
 
 	_, err = c.bot.Send(msg)
 	if err != nil {

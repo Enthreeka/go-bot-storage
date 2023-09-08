@@ -96,6 +96,7 @@ func main() {
 		} else if update.CallbackQuery != nil {
 			userID := update.CallbackQuery.Message.Chat.ID
 
+			// defines pre-defined buttons
 			switch update.CallbackQuery.Data {
 			case "create_cell":
 				status[userID].Callback["create_cell"] = true
@@ -104,6 +105,13 @@ func main() {
 				status[userID].Callback["delete_cell"] = true
 			case "all_cell":
 				cellViewCallback.ShowCell(&update)
+			case "back_main":
+				callbackMail.BotSendMainMenu(&update)
+			}
+
+			// defines buttons received from the database
+			if model.IsCell(update.CallbackQuery.Data) {
+
 			}
 		}
 

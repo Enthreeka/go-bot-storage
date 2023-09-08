@@ -1,5 +1,7 @@
 package model
 
+import "strings"
+
 // Cell - the main thing is the set of sub-cells (in repository under cells)
 type Cell struct {
 	ID     int    `json:"id"`
@@ -18,3 +20,10 @@ type UnderCell struct {
 
 // UnderCells - slice for all getting cells by CellID
 //type UnderCells []UnderCell
+
+func IsCell(data string) bool {
+	if strings.HasPrefix(data, "cell") {
+		return true
+	}
+	return false
+}

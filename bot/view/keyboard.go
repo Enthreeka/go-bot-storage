@@ -13,3 +13,5 @@ var StartKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 var AddCellKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 	tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData("Добавить раздел", "add_cell")))
+
+var MainMenuButtonData = tgbotapi.NewInlineKeyboardButtonData("Вернуться в управление", "back_main")

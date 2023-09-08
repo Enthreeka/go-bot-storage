@@ -1,25 +1,20 @@
 package command
 
 import (
-	"github.com/Enthreeka/go-bot-storage/bot/controller"
 	"github.com/Enthreeka/go-bot-storage/bot/view"
 	"github.com/Enthreeka/go-bot-storage/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-// Удалить 	cellController controller.Cell
 type commandMail struct {
-	cellController controller.Cell
-
 	bot *tgbotapi.BotAPI
 	log *logger.Logger
 }
 
-func NewCommandMail(cellController controller.Cell, bot *tgbotapi.BotAPI, log *logger.Logger) *commandMail {
+func NewCommandMail(bot *tgbotapi.BotAPI, log *logger.Logger) *commandMail {
 	return &commandMail{
-		cellController: cellController,
-		bot:            bot,
-		log:            log,
+		bot: bot,
+		log: log,
 	}
 }
 
