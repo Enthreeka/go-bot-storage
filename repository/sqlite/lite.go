@@ -1,4 +1,4 @@
-package db
+package sqlite
 
 import (
 	"database/sql"
@@ -7,7 +7,7 @@ import (
 
 var (
 	tableUser = `CREATE TABLE IF NOT EXISTS  "user"(
-    id INTEGER primary key  AUTOINCREMENT,
+    id INTEGER primary key ,
     nickname varchar(100) unique not null,
     first_name varchar(100) not null,
     last_name varchar(100) not null,
@@ -32,6 +32,7 @@ var (
 
 	tableData = `CREATE TABLE IF NOT EXISTS data(
   id INTEGER primary key AUTOINCREMENT,
+  name text,
   under_cells_id int,
   link text null,
   describe text null,
@@ -46,7 +47,7 @@ type SQLite struct {
 }
 
 func New() (*SQLite, error) {
-	database, err := sql.Open("sqlite3", "./bot_lite.db")
+	database, err := sql.Open("sqlite3", "./bot_lite.repository")
 	if err != nil {
 		return nil, err
 	}
