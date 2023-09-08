@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Enthreeka/go-bot-storage/bot/controller"
 	"github.com/Enthreeka/go-bot-storage/bot/model"
 	"github.com/Enthreeka/go-bot-storage/bot/view/callback"
 	"github.com/Enthreeka/go-bot-storage/bot/view/command"
@@ -23,7 +24,7 @@ func main() {
 
 	log := logger.New()
 
-	_, err = sqlite.New()
+	sqLite, err := sqlite.New()
 	if err != nil {
 		log.Fatal("failed to connect SqLite: %v", err)
 	}
@@ -42,7 +43,9 @@ func main() {
 
 	updates := bot.GetUpdatesChan(u)
 
-	//userRepo := sqlite.UserRepository(sqLite)
+	userRepo := sqlite.UserRepository(sqLite)
+
+	userController := controller.UserController(userRepo, log)
 
 	status := make(map[int64]*model.Status)
 	for update := range updates {
@@ -52,13 +55,11 @@ func main() {
 			userID := update.Message.Chat.ID
 			msg := tgbotapi.NewMessage(userID, update.Message.Text)
 
-			//user := &model.User{
-			//	ID:        userID,
-			//	Nickname:  update.Message.From.UserName,
-			//	FirstName: update.Message.From.FirstName,
-			//	LastName:  update.Message.From.LastName,
-			//}
-			//err := userRepo.Create(user)
+			// Check user subscriber or not
+			_, err := userController.CheckUser(&update)
+			if err != nil {
+				log.Error("failed to check or create user: %v", err)
+			}
 
 			//Initialization map
 			if _, ok := status[userID]; !ok {

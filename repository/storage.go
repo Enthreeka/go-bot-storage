@@ -3,7 +3,7 @@ package repository
 import "github.com/Enthreeka/go-bot-storage/bot/model"
 
 type User interface {
-	Create(user *model.User) error
+	Create(user *model.User) (*model.User, error)
 	GetByID(id int64) (*model.User, error)
 }
 

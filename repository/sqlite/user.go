@@ -16,11 +16,20 @@ func UserRepository(SQLite *SQLite) repository.User {
 	}
 }
 
-func (u *userRepository) Create(user *model.User) error {
-	query := `INSERT INTO "user"(id, nickname,first_name,last_name) VALUES ($1,$2,$3,$4)`
+func (u *userRepository) Create(user *model.User) (*model.User, error) {
+	query := `INSERT INTO "user"(id, nickname,first_name,last_name) VALUES ($1,$2,$3,$4) 
+			RETURNING id, nickname,first_name,last_name `
 
-	_, err := u.db.Exec(query, user.ID, user.Nickname, user.FirstName, user.LastName)
-	return err
+	createdUser := &model.User{}
+	err := u.db.QueryRow(query, user.ID, user.Nickname, user.FirstName, user.LastName).Scan(
+		&createdUser.ID,
+		&createdUser.Nickname,
+		&createdUser.FirstName,
+		&createdUser.LastName)
+	if err != nil {
+		return nil, err
+	}
+	return createdUser, nil
 }
 
 func (u *userRepository) GetByID(id int64) (*model.User, error) {

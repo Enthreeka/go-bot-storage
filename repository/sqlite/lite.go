@@ -47,7 +47,7 @@ type SQLite struct {
 }
 
 func New() (*SQLite, error) {
-	database, err := sql.Open("sqlite3", "./bot_lite.repository")
+	database, err := sql.Open("sqlite3", "./bot_lite.db")
 	if err != nil {
 		return nil, err
 	}
