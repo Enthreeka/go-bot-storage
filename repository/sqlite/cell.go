@@ -9,7 +9,7 @@ type cellRepository struct {
 	*SQLite
 }
 
-func CellRepository(SQLite *SQLite) repository.Cell {
+func NewCellRepository(SQLite *SQLite) repository.Cell {
 	return &cellRepository{
 		SQLite,
 	}

@@ -14,7 +14,7 @@ type userController struct {
 	log *logger.Logger
 }
 
-func UserController(userRepo repository.User, log *logger.Logger) User {
+func NewUserController(userRepo repository.User, log *logger.Logger) User {
 	return &userController{
 		userRepo: userRepo,
 		log:      log,

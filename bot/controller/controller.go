@@ -8,3 +8,9 @@ import (
 type User interface {
 	CheckUser(update *tgbotapi.Update) (*model.User, error)
 }
+
+type Cell interface {
+	CreateCell(update *tgbotapi.Update) error
+	DeleteCell(name string) error
+	GetCell(id int64) ([]model.Cell, error)
+}

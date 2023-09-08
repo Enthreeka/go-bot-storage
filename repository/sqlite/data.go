@@ -8,7 +8,7 @@ type dataRepository struct {
 	*SQLite
 }
 
-func DataRepository(SQLite *SQLite) *dataRepository {
+func NewDataRepository(SQLite *SQLite) *dataRepository {
 	return &dataRepository{
 		SQLite,
 	}

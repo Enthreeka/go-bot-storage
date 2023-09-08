@@ -43,10 +43,14 @@ func main() {
 
 	updates := bot.GetUpdatesChan(u)
 
-	userRepo := sqlite.UserRepository(sqLite)
+	userRepo := sqlite.NewUserRepository(sqLite)
+	cellRepo := sqlite.NewCellRepository(sqLite)
 
-	userController := controller.UserController(userRepo, log)
+	userController := controller.NewUserController(userRepo, log)
+	cellController := controller.NewCellController(cellRepo, log)
 
+	cellView := command.NewCellView(cellController, log)
+	mail := command.NewCommandMail(cellController, bot, log)
 	status := make(map[int64]*model.Status)
 	for update := range updates {
 		if update.Message != nil {
@@ -70,19 +74,19 @@ func main() {
 
 			switch update.Message.Command() {
 			case "start":
-				command.BotSendStart(log, bot, &msg)
+				mail.BotSendStart(&msg)
 			case "info":
-				command.BotSendInfo(log, bot, &msg)
+				mail.BotSendInfo(&msg)
 			default:
 				if userStatus, ok := status[userID]; ok {
 					if userStatus.Callback["create_cell"] == true {
 						userStatus.Callback["create_cell"] = false
 
-						//cell := update.Message.Text
+						cellView.CreateCell(&update, bot, &msg)
 
 					}
 				} else {
-					command.BotSendDefault(log, bot, &msg)
+					mail.BotSendDefault(&msg)
 				}
 			}
 		} else if update.CallbackQuery != nil {

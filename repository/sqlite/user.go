@@ -10,7 +10,7 @@ type userRepository struct {
 	*SQLite
 }
 
-func UserRepository(SQLite *SQLite) repository.User {
+func NewUserRepository(SQLite *SQLite) repository.User {
 	return &userRepository{
 		SQLite,
 	}
