@@ -41,3 +41,24 @@ func (c *cellView) CreateCell(update *tgbotapi.Update, msg *tgbotapi.MessageConf
 
 	return nil
 }
+
+func (c *cellView) CreateUnderCell(update *tgbotapi.Update, msg *tgbotapi.MessageConfig, cellID *int) error {
+	err := c.cellController.CreateUnderCell(update, cellID)
+	if err != nil {
+		c.log.Error("failed create new under_cell by [%s]: %v", update.Message.From.UserName, err)
+
+		msg.Text = "Ошибка при создании новой темы!"
+		c.bot.Send(msg)
+		if err != nil {
+			c.log.Error("failed to send message in CreateUnderCell %v", err)
+		}
+	}
+
+	msg.Text = "Тема добавлена успешно"
+	c.bot.Send(msg)
+	if err != nil {
+		c.log.Error("failed to send message in CreateUnderCell %v", err)
+	}
+
+	return nil
+}

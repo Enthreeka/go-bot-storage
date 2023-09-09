@@ -45,3 +45,13 @@ func (c *callbackMail) BotSendMainMenu(update *tgbotapi.Update) {
 		c.log.Error("error sending main menu from callback: %v", err)
 	}
 }
+
+func (c *callbackMail) BotSendTextUnderCell(userID int64) {
+	text := "Напишите, какую темы вы хотите добавить:"
+	msg := tgbotapi.NewMessage(userID, text)
+
+	_, err := c.bot.Send(msg)
+	if err != nil {
+		c.log.Error("failed to send message in CallbackQuery [create_under_cell] %v", err)
+	}
+}

@@ -29,14 +29,14 @@ func (u *underCellRepository) DeleteByName(name string) error {
 	return err
 }
 
-func (u *underCellRepository) GetByCellID(id int64) ([]model.UnderCell, error) {
+func (u *underCellRepository) GetByCellID(userID int64, cellID int) ([]model.UnderCell, error) {
 	query := `SELECT under_cells.id,under_cells.cell_id,under_cells.name
 				FROM "user"
 				JOIN cell ON cell.user_id = "user".id
 				JOIN under_cells ON under_cells.cell_id = cell.id
-				WHERE "user".id = $1`
+				WHERE "user".id = $1  AND  cell.id = $2`
 
-	rows, err := u.db.Query(query, id)
+	rows, err := u.db.Query(query, userID, cellID)
 	if err != nil {
 		return nil, err
 	}

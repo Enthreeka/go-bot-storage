@@ -68,9 +68,9 @@ func (c *cellView) ShowCell(update *tgbotapi.Update) error {
 func (c *cellView) ShowUnderCell(update *tgbotapi.Update) (int, error) {
 	userID := update.CallbackQuery.Message.Chat.ID
 
-	_, name := model.FindIntStr(update.CallbackQuery.Data)
+	cellID, name := model.FindIntStr(update.CallbackQuery.Data)
 
-	underCell, err := c.cellController.GetUnderCell(userID)
+	underCell, err := c.cellController.GetUnderCell(userID, cellID)
 	if err != nil {
 		return 0, err
 	}
@@ -113,14 +113,6 @@ func (c *cellView) ShowUnderCell(update *tgbotapi.Update) (int, error) {
 		c.log.Error("error sending under cell keyboard: %v", err)
 	}
 
-	return 0, nil
+	return cellID, nil
 
-}
-
-func (c *cellView) CreateUnderCell(update *tgbotapi.Update, cellID *int) error {
-	err := c.cellController.CreateUnderCell(update, cellID)
-	if err != nil {
-		return err
-	}
-	return nil
 }

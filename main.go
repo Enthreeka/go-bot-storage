@@ -57,6 +57,7 @@ func main() {
 	callbackMail := callback.NewCallbackMail(bot, log)
 
 	status := make(map[int64]*model.Status)
+	cellID := make(map[int64]*int)
 	for update := range updates {
 		if update.Message != nil {
 			log.Info("[%s] %s", update.Message.From.UserName, update.Message.Text)
@@ -89,6 +90,12 @@ func main() {
 
 						cellViewCommand.CreateCell(&update, &msg)
 
+					} else if userStatus.Callback["create_under_cell"] == true {
+						userStatus.Callback["create_under_cell"] = false
+
+						if cellID, ok := cellID[userID]; ok {
+							cellViewCommand.CreateUnderCell(&update, &msg, cellID)
+						}
 					}
 				} else {
 					commandMail.BotSendDefault(&msg)
@@ -98,48 +105,32 @@ func main() {
 			userID := update.CallbackQuery.Message.Chat.ID
 			dataCommand := update.CallbackQuery.Data
 
-			//cellID := make(map[int64]*int)
-
 			// defines pre-defined buttons
 			switch dataCommand {
 			case "create_cell":
 				status[userID].Callback["create_cell"] = true
 				callbackMail.BotSendTextCell(userID)
 			case "delete_cell":
-				status[userID].Callback["delete_cell"] = true
+				//status[userID].Callback["delete_cell"] = true
 			case "all_cell":
 				cellViewCallback.ShowCell(&update)
 			case "back_main":
 				callbackMail.BotSendMainMenu(&update)
 			case "create_under_cell":
+				status[userID].Callback["create_under_cell"] = true
+				callbackMail.BotSendTextUnderCell(userID)
 			case "delete_under_cell":
 
 			}
 
 			// defines "cell_name_id" and "underCell_name_id" buttons
 			if model.IsCell(dataCommand) {
-
-				// TODO После нажатия на кнопки с разделами должны появится кнпоки с темами(либо же их нет)
-				// TODO в кнопке с темами есть доп 3 кнопки -> вернуться в главное меню, создать тему, удалить тему
-				//id, name := func(dataCommand string) (int, string) {
-				//	re := regexp.MustCompile("[0-9]+")
-				//	digits := re.FindAllString(dataCommand, -1)
-				//	digitsStr := strings.Join(digits, "")
-				//
-				//	name := strings.Split(dataCommand, "_")
-				//
-				//	digitsInt, _ := strconv.Atoi(digitsStr)
-				//
-				//	return digitsInt, name[1]
-				//}(dataCommand)
-
-				//cellID[userID] = &id
-
-				_, err := cellViewCallback.ShowUnderCell(&update)
+				// TODO обработка ошибки
+				id, err := cellViewCallback.ShowUnderCell(&update)
 				if err != nil {
 					log.Error("%v", err)
 				}
-
+				cellID[userID] = &id
 			} else if model.IsUnderCell(dataCommand) {
 
 			}

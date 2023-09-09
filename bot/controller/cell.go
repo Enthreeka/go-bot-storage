@@ -70,8 +70,8 @@ func (c *cellController) DeleteUnderCell(name string) error {
 	panic("implement me")
 }
 
-func (c *cellController) GetUnderCell(id int64) ([]model.UnderCell, error) {
-	underCell, err := c.underCellRepo.GetByCellID(id)
+func (c *cellController) GetUnderCell(userID int64, cellID int) ([]model.UnderCell, error) {
+	underCell, err := c.underCellRepo.GetByCellID(userID, cellID)
 	if err != nil {
 		return nil, err
 	}
