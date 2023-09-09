@@ -21,3 +21,6 @@ type UnderCell interface {
 	DeleteUnderCell(name string) error
 	GetUnderCell(userID int64, cellID int) ([]model.UnderCell, error)
 }
+
+type Data interface {
+}

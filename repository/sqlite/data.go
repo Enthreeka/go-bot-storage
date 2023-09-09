@@ -23,11 +23,53 @@ func (d *dataRepository) Create(data model.Data) error {
 }
 
 func (d *dataRepository) Delete(name string) error {
-	//TODO implement me
-	panic("implement me")
+	//query := `DELETE FROM data WHERE under_cells_id = $1`
+	panic("delete")
 }
 
-func (d *dataRepository) GetByUnderCellID() (*model.Data, error) {
-	//TODO implement me
-	panic("implement me")
+func (d *dataRepository) GetByUnderCellID(underCellID int) ([]model.Data, error) {
+	query := `SELECT id,name FROM data WHERE under_cells_id = $1`
+
+	rows, err := d.db.Query(query, underCellID)
+	if err != nil {
+		return nil, err
+	}
+
+	datas := make([]model.Data, 0, 16)
+	for rows.Next() {
+		var data model.Data
+
+		err = rows.Scan(&data.ID, &data.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		datas = append(datas, data)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return datas, nil
 }
+
+func (d *dataRepository) GetDataByName(dataName string, underCellID int) (*model.Data, error) {
+	query := `SELECT data.describe 
+					FROM data
+					JOIN under_cells ON data.under_cells_id = under_cells.id
+					WHERE data.name = $1 AND data.under_cells_id=$2`
+	data := &model.Data{}
+
+	err := d.db.QueryRow(query, dataName, underCellID).Scan(&data.Describe)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+//func (d *dataRepository) GetDescribeByName() {
+//	query := `SELECT `
+//
+//}

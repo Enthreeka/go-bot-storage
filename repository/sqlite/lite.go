@@ -34,9 +34,7 @@ var (
   id INTEGER primary key AUTOINCREMENT,
   name text,
   under_cells_id int,
-  link text null,
   describe text null,
-  pdf_link text null,
   foreign key (under_cells_id)
       references under_cells (id) on delete cascade
 												)`

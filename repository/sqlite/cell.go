@@ -38,7 +38,7 @@ func (c *cellRepository) GetByUserID(id int64) ([]model.Cell, error) {
 		return nil, err
 	}
 
-	cells := make([]model.Cell, 0, 32)
+	cells := make([]model.Cell, 0, 16)
 	for rows.Next() {
 		var cell model.Cell
 
@@ -48,6 +48,10 @@ func (c *cellRepository) GetByUserID(id int64) ([]model.Cell, error) {
 		}
 
 		cells = append(cells, cell)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return cells, nil
