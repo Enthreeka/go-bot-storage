@@ -8,15 +8,17 @@ import (
 )
 
 type cellController struct {
-	cellRepo repository.Cell
+	cellRepo      repository.Cell
+	underCellRepo repository.UnderCell
 
 	log *logger.Logger
 }
 
-func NewCellController(cellRepo repository.Cell, log *logger.Logger) Cell {
+func NewCellController(cellRepo repository.Cell, underCellRepo repository.UnderCell, log *logger.Logger) Cell {
 	return &cellController{
-		cellRepo: cellRepo,
-		log:      log,
+		cellRepo:      cellRepo,
+		underCellRepo: underCellRepo,
+		log:           log,
 	}
 }
 
@@ -47,4 +49,32 @@ func (c *cellController) GetCell(id int64) ([]model.Cell, error) {
 	}
 
 	return cells, nil
+}
+
+func (c *cellController) CreateUnderCell(update *tgbotapi.Update, cellID *int) error {
+	cell := &model.UnderCell{
+		CellID: *cellID,
+		Name:   update.Message.Text,
+	}
+
+	err := c.underCellRepo.Create(cell)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *cellController) DeleteUnderCell(name string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *cellController) GetUnderCell(id int64) ([]model.UnderCell, error) {
+	underCell, err := c.underCellRepo.GetByCellID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return underCell, err
 }

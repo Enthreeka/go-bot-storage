@@ -29,6 +29,7 @@ func (c *cellRepository) DeleteByName(name string) error {
 	return err
 }
 
+// Сделать обработку ошибку no one result rows
 func (c *cellRepository) GetByUserID(id int64) ([]model.Cell, error) {
 	query := `SELECT id,name,user_id FROM cell WHERE user_id = $1`
 

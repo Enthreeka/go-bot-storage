@@ -15,3 +15,9 @@ var AddCellKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardButtonData("Добавить раздел", "add_cell")))
 
 var MainMenuButtonData = tgbotapi.NewInlineKeyboardButtonData("Вернуться в управление", "back_main")
+
+var CellButtonDataCreate = tgbotapi.NewInlineKeyboardButtonData("Создать тему", "create_under_cell")
+
+var CellButtonDataDelete = tgbotapi.NewInlineKeyboardButtonData("Удалить тему", "delete_under_cell")
+
+var NoOneRowsButtonData = tgbotapi.NewInlineKeyboardButtonData("Пока что ничего нет", "no_one_rows")

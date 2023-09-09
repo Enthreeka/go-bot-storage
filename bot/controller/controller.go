@@ -13,4 +13,11 @@ type Cell interface {
 	CreateCell(update *tgbotapi.Update) error
 	DeleteCell(name string) error
 	GetCell(id int64) ([]model.Cell, error)
+	UnderCell
+}
+
+type UnderCell interface {
+	CreateUnderCell(update *tgbotapi.Update, cellID *int) error
+	DeleteUnderCell(name string) error
+	GetUnderCell(id int64) ([]model.UnderCell, error)
 }

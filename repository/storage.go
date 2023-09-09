@@ -14,7 +14,7 @@ type Cell interface {
 }
 
 type UnderCell interface {
-	Create(cell model.UnderCell) error
+	Create(cell *model.UnderCell) error
 	DeleteByName(name string) error
 	GetByCellID(id int64) ([]model.UnderCell, error)
 }
