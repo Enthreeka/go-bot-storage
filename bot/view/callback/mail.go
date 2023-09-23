@@ -55,3 +55,13 @@ func (c *callbackMail) BotSendTextUnderCell(userID int64) {
 		c.log.Error("failed to send message in CallbackQuery [create_under_cell] %v", err)
 	}
 }
+
+func (c *callbackMail) BotSendTextData(userID int64) {
+	text := "Напишите, что вы хотите разместить в данной теме, либо прикрепите файл:"
+	msg := tgbotapi.NewMessage(userID, text)
+
+	_, err := c.bot.Send(msg)
+	if err != nil {
+		c.log.Error("failed to send message in CallbackQuery [add_data] %v", err)
+	}
+}

@@ -23,4 +23,6 @@ type UnderCell interface {
 }
 
 type Data interface {
+	GetData(underCellID int) (*model.Data, error)
+	CreateData(update *tgbotapi.Update, UnderCellID *int) error
 }

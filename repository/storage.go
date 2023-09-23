@@ -20,8 +20,8 @@ type UnderCell interface {
 }
 
 type Data interface {
-	Create(data model.Data) error
+	Create(data *model.Data) error
 	Delete(name string) error
-	GetByUnderCellID(underCellID int) ([]model.Data, error)
+	GetByUnderCellID(underCellID int) (*model.Data, error)
 	GetDataByName(dataName string, underCellID int) (*model.Data, error)
 }

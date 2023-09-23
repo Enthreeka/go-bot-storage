@@ -21,3 +21,7 @@ var CellButtonDataCreate = tgbotapi.NewInlineKeyboardButtonData("Создать 
 var CellButtonDataDelete = tgbotapi.NewInlineKeyboardButtonData("Удалить тему", "delete_under_cell")
 
 var NoOneRowsButtonData = tgbotapi.NewInlineKeyboardButtonData("Пока что ничего нет", "no_one_rows")
+
+var AddDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Добавить данные", "add_data"))
+
+var DeleteDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Удалить данные", "delete_data"))

@@ -1,5 +1,7 @@
 package model
 
+import "strings"
+
 type Data struct {
 	ID          int    `json:"id"`
 	UnderCellID int    `json:"under_cells_id"`
@@ -7,4 +9,9 @@ type Data struct {
 	Describe    string `json:"describe"`
 }
 
-type NameData []string
+func IsData(data string) bool {
+	if strings.HasPrefix(data, data) {
+		return true
+	}
+	return false
+}

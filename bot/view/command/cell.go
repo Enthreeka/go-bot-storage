@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"github.com/Enthreeka/go-bot-storage/bot/controller"
 	"github.com/Enthreeka/go-bot-storage/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -54,7 +55,7 @@ func (c *cellView) CreateUnderCell(update *tgbotapi.Update, msg *tgbotapi.Messag
 		}
 	}
 
-	msg.Text = "Тема добавлена успешно"
+	msg.Text = fmt.Sprintf("Тема: %s ,добавлена успешно", update.Message.Text)
 	c.bot.Send(msg)
 	if err != nil {
 		c.log.Error("failed to send message in CreateUnderCell %v", err)
