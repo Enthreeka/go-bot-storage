@@ -15,3 +15,13 @@ func IsData(data string) bool {
 	}
 	return false
 }
+
+func IsFile(data string) (string, bool) {
+	prefix := "file-"
+
+	if strings.HasPrefix(data, prefix) {
+		data = strings.TrimPrefix(data, prefix)
+		return data, true
+	}
+	return "", false
+}

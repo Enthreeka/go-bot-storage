@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/Enthreeka/go-bot-storage/bot/model"
 	"github.com/Enthreeka/go-bot-storage/repository"
 )
@@ -17,11 +18,10 @@ func NewDataRepository(SQLite *SQLite) repository.Data {
 }
 
 func (d *dataRepository) Create(data *model.Data) error {
-	query := `INSERT INTO data (name) VALUES ($1)`
+	query := `INSERT INTO data (describe,under_cells_id) VALUES ($1,$2)`
 
-	d.db.Exec(query)
-
-	panic("implement me")
+	_, err := d.db.Exec(query, data.Describe, data.UnderCellID)
+	return err
 }
 
 func (d *dataRepository) Delete(name string) error {
@@ -30,36 +30,12 @@ func (d *dataRepository) Delete(name string) error {
 }
 
 func (d *dataRepository) GetByUnderCellID(underCellID int) (*model.Data, error) {
-	query := `SELECT id,name ,describe FROM data WHERE under_cells_id = $1`
-
-	//rows, err := d.db.Query(query, underCellID)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//datas := make([]model.Data, 0, 16)
-	//for rows.Next() {
-	//	var data model.Data
-	//
-	//	err = rows.Scan(&data.ID, &data.Name, &data.Describe)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//
-	//	datas = append(datas, data)
-	//}
-	//
-	//if err = rows.Err(); err != nil {
-	//	return nil, err
-	//}
-	//
-	//return datas, nil
+	query := `SELECT  describe FROM data WHERE under_cells_id = $1`
 
 	data := &model.Data{}
-
-	// TODO возможно name не нужен
-	err := d.db.QueryRow(query, underCellID).Scan(&data.Name, &data.Describe)
+	err := d.db.QueryRow(query, underCellID).Scan(&data.Describe)
 	if err != nil {
+		fmt.Println(err)
 		if err == sql.ErrNoRows {
 			return nil, sql.ErrNoRows
 		}

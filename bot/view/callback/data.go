@@ -26,7 +26,6 @@ func NewDataView(dataController controller.Data, bot *tgbotapi.BotAPI, log *logg
 
 func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 	userID := update.CallbackQuery.Message.Chat.ID
-
 	underCellID, name := model.FindIntStr(update.CallbackQuery.Data)
 
 	msg := tgbotapi.EditMessageTextConfig{
@@ -47,19 +46,38 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 			if err != nil {
 				d.log.Error("error sending under cell keyboard: %v", err)
 			}
-		} else {
-			markup := tgbotapi.NewInlineKeyboardMarkup(view.AddDataButtonData, view.DeleteDataButtonData)
-			msg.ReplyMarkup = &markup
-			//TODO Проверку на файл
-			msg.Text = data.Describe
-
-			_, err = d.bot.Send(msg)
-			if err != nil {
-				d.log.Error("error sending under cell keyboard: %v", err)
-			}
 		}
-		return 0, err
+		return underCellID, err
 	}
 
-	return data.UnderCellID, nil
+	markup := tgbotapi.NewInlineKeyboardMarkup(view.AddDataButtonData, view.DeleteDataButtonData)
+	msg.ReplyMarkup = &markup
+
+	dataFile, file := model.IsFile(data.Describe)
+	if file {
+		fileID := tgbotapi.FileID(dataFile)
+		msg := tgbotapi.DocumentConfig{
+			BaseFile: tgbotapi.BaseFile{
+				BaseChat: tgbotapi.BaseChat{
+					ChatID:      userID,
+					ReplyMarkup: &markup,
+				},
+				File: fileID,
+			},
+			Caption: name}
+
+		_, err = d.bot.Send(msg)
+		if err != nil {
+			d.log.Error("error sending document: %v", err)
+		}
+		return underCellID, nil
+	}
+
+	msg.Text = data.Describe
+	_, err = d.bot.Send(msg)
+	if err != nil {
+		d.log.Error("error sending text: %v", err)
+	}
+
+	return underCellID, nil
 }

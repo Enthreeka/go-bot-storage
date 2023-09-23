@@ -53,6 +53,7 @@ func main() {
 	dataController := controller.NewDataController(dataRepo, log)
 
 	cellViewCommand := command.NewCellView(cellController, bot, log)
+	dataViewCommand := command.NewDataView(dataController, bot, log)
 	cellViewCallback := callback.NewCellView(cellController, bot, log)
 	dataViewCallback := callback.NewDataView(dataController, bot, log)
 
@@ -63,6 +64,7 @@ func main() {
 
 	cellID := make(map[int64]*int)
 	underCellID := make(map[int64]*int)
+
 	for update := range updates {
 		if update.Message != nil {
 			log.Info("[%s] %s", update.Message.From.UserName, update.Message.Text)
@@ -105,9 +107,12 @@ func main() {
 						userStatus.Callback["add_data"] = false
 
 						if underCellID, ok := underCellID[userID]; ok {
-							cellViewCommand.CreateUnderCell(&update, &msg, underCellID)
+							dataViewCommand.CreateData(&update, &msg, underCellID)
 						}
 
+						//TODO пересмотреть решение
+					} else {
+						commandMail.BotSendDefault(&msg)
 					}
 				} else {
 					commandMail.BotSendDefault(&msg)
