@@ -68,7 +68,7 @@ func (c *cellView) ShowCell(update *tgbotapi.Update) error {
 func (c *cellView) ShowUnderCell(update *tgbotapi.Update) (int, error) {
 	userID := update.CallbackQuery.Message.Chat.ID
 
-	cellID, name := model.FindIntStr(update.CallbackQuery.Data)
+	cellID, name := model.FindIdName(update.CallbackQuery.Data)
 
 	underCell, err := c.cellController.GetUnderCell(userID, cellID)
 	if err != nil {

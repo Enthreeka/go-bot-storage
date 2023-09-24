@@ -26,7 +26,7 @@ func NewDataView(dataController controller.Data, bot *tgbotapi.BotAPI, log *logg
 
 func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 	userID := update.CallbackQuery.Message.Chat.ID
-	underCellID, name := model.FindIntStr(update.CallbackQuery.Data)
+	underCellID, name := model.FindIdName(update.CallbackQuery.Data)
 
 	msg := tgbotapi.EditMessageTextConfig{
 		BaseEdit: tgbotapi.BaseEdit{

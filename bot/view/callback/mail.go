@@ -46,3 +46,13 @@ func (c *callbackMail) BotSendTextData(userID int64) {
 		c.log.Error("failed to send message in CallbackQuery [add_data] %v", err)
 	}
 }
+
+func (c *callbackMail) BotSendTextDeleteCell(userID int64) {
+	text := "Нажмите на раздел, котоырй вы хотите удалить:"
+	msg := tgbotapi.NewMessage(userID, text)
+
+	_, err := c.bot.Send(msg)
+	if err != nil {
+		c.log.Error("failed to send message in CallbackQuery [delete_cell] %v", err)
+	}
+}

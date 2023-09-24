@@ -1,7 +1,6 @@
 package model
 
 import (
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -34,14 +33,16 @@ func IsUnderCell(data string) bool {
 }
 
 // TODO обработку ошибок
-func FindIntStr(data string) (int, string) {
-	re := regexp.MustCompile("[0-9]+")
-	digits := re.FindAllString(data, -1)
-	digitsStr := strings.Join(digits, "")
+func FindIdName(data string) (int, string) {
+	parts := strings.Split(data, "_")
+	if len(parts) < 2 {
+		return 0, ""
+	}
 
-	name := strings.Split(data, "_")
+	cellID, err := strconv.Atoi(parts[2])
+	if err != nil {
+		return 0, ""
+	}
 
-	digitsInt, _ := strconv.Atoi(digitsStr)
-
-	return digitsInt, name[1]
+	return cellID, parts[1]
 }

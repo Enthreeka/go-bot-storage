@@ -37,9 +37,13 @@ func (c *cellController) CreateCell(update *tgbotapi.Update) error {
 	return nil
 }
 
-func (c *cellController) DeleteCell(name string) error {
-	//TODO implement me
-	panic("implement me")
+func (c *cellController) DeleteCell(id int) error {
+	err := c.cellRepo.DeleteByID(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *cellController) GetCell(id int64) ([]model.Cell, error) {

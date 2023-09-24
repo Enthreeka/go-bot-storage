@@ -3,9 +3,11 @@ package command
 import (
 	"fmt"
 	"github.com/Enthreeka/go-bot-storage/bot/controller"
+	"github.com/Enthreeka/go-bot-storage/bot/model"
 	"github.com/Enthreeka/go-bot-storage/bot/view"
 	"github.com/Enthreeka/go-bot-storage/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"strings"
 )
 
 type cellView struct {
@@ -24,7 +26,12 @@ func NewCellView(cellController controller.Cell, bot *tgbotapi.BotAPI, log *logg
 }
 
 func (c *cellView) ShowCell(update *tgbotapi.Update, msg *tgbotapi.MessageConfig) error {
-	userID := update.Message.Chat.ID
+	var userID int64
+	if update.Message != nil && update.Message.Chat != nil {
+		userID = update.Message.Chat.ID
+	} else if update.CallbackQuery != nil && update.CallbackQuery.Message != nil && update.CallbackQuery.Message.Chat != nil {
+		userID = update.CallbackQuery.Message.Chat.ID
+	}
 
 	cells, err := c.cellController.GetCell(userID)
 	if err != nil {
@@ -93,10 +100,38 @@ func (c *cellView) CreateUnderCell(update *tgbotapi.Update, msg *tgbotapi.Messag
 	}
 
 	msg.Text = fmt.Sprintf("Тема: %s ,добавлена успешно", update.Message.Text)
-	c.bot.Send(msg)
+	_, err = c.bot.Send(msg)
 	if err != nil {
 		c.log.Error("failed to send message in CreateUnderCell %v", err)
 	}
 
 	return nil
+}
+
+func (c *cellView) DeleteCell(update *tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+	msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "")
+
+	if !strings.HasPrefix(update.CallbackQuery.Data, "cell_") {
+		msg.Text = "Для удаления был выбран не раздел!"
+		_, err := c.bot.Send(msg)
+		if err != nil {
+			c.log.Error("failed to send message in DeleteCell %v", err)
+		}
+
+		return &msg, err
+	}
+
+	cellID, name := model.FindIdName(update.CallbackQuery.Data)
+	err := c.cellController.DeleteCell(cellID)
+	if err != nil {
+		return &msg, err
+	}
+
+	msg.Text = fmt.Sprintf("Раздел: %s,удален успешно", name)
+	_, err = c.bot.Send(msg)
+	if err != nil {
+		c.log.Error("failed to send message in DeleteCell %v", err)
+	}
+
+	return &msg, err
 }

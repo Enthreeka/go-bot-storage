@@ -22,10 +22,10 @@ func (c *cellRepository) Create(cell *model.Cell) error {
 	return err
 }
 
-func (c *cellRepository) DeleteByName(name string) error {
-	query := `DELETE FROM cell WHERE name = $1`
+func (c *cellRepository) DeleteByID(id int) error {
+	query := `DELETE FROM cell WHERE id = $1`
 
-	_, err := c.db.Exec(query, name)
+	_, err := c.db.Exec(query, id)
 	return err
 }
 

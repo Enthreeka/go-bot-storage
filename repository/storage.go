@@ -9,7 +9,7 @@ type User interface {
 
 type Cell interface {
 	Create(cell *model.Cell) error
-	DeleteByName(name string) error
+	DeleteByID(id int) error
 	GetByUserID(id int64) ([]model.Cell, error)
 }
 

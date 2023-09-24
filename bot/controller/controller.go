@@ -11,7 +11,7 @@ type User interface {
 
 type Cell interface {
 	CreateCell(update *tgbotapi.Update) error
-	DeleteCell(name string) error
+	DeleteCell(id int) error
 	GetCell(id int64) ([]model.Cell, error)
 	UnderCell
 }
