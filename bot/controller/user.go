@@ -41,6 +41,7 @@ func (u *userController) CheckUser(update *tgbotapi.Update) (*model.User, error)
 				return nil, err
 			}
 
+			u.log.Info("Create new user - id:[%d],username:[%s]", userID, update.Message.From.UserName)
 			return user, nil
 		}
 		return nil, err

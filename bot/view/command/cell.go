@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"github.com/Enthreeka/go-bot-storage/bot/controller"
+	"github.com/Enthreeka/go-bot-storage/bot/view"
 	"github.com/Enthreeka/go-bot-storage/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -20,6 +21,42 @@ func NewCellView(cellController controller.Cell, bot *tgbotapi.BotAPI, log *logg
 		bot:            bot,
 		log:            log,
 	}
+}
+
+func (c *cellView) ShowCell(update *tgbotapi.Update, msg *tgbotapi.MessageConfig) error {
+	userID := update.Message.Chat.ID
+
+	cells, err := c.cellController.GetCell(userID)
+	if err != nil {
+		return err
+	}
+
+	var rows [][]tgbotapi.InlineKeyboardButton
+	var row []tgbotapi.InlineKeyboardButton
+
+	for _, el := range cells {
+		button := tgbotapi.NewInlineKeyboardButtonData(el.Name, fmt.Sprintf("cell_%s_%d", el.Name, el.ID))
+		row = append(row, button)
+		rows = append(rows, row)
+		row = []tgbotapi.InlineKeyboardButton{}
+
+	}
+
+	//TODO проверка если в len(cell) == 0
+	rows = append(rows, row)
+	rows = append(rows, []tgbotapi.InlineKeyboardButton{view.CreateCellButtonData, view.DeleteCellButtonData})
+
+	markup := tgbotapi.NewInlineKeyboardMarkup(rows...)
+
+	msg.Text = "Управление разделами"
+	msg.ReplyMarkup = &markup
+
+	_, err = c.bot.Send(msg)
+	if err != nil {
+		c.log.Error("failed to send message in /start %v", err)
+	}
+
+	return nil
 }
 
 func (c *cellView) CreateCell(update *tgbotapi.Update, msg *tgbotapi.MessageConfig) error {

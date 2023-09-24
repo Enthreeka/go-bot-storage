@@ -44,7 +44,7 @@ func (c *cellView) ShowCell(update *tgbotapi.Update) error {
 	}
 
 	rows = append(rows, row)
-	rows = append(rows, []tgbotapi.InlineKeyboardButton{view.MainMenuButtonData})
+	rows = append(rows, []tgbotapi.InlineKeyboardButton{view.CreateCellButtonData, view.DeleteCellButtonData})
 
 	markup := tgbotapi.NewInlineKeyboardMarkup(rows...)
 
