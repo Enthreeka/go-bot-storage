@@ -22,10 +22,10 @@ func (u *underCellRepository) Create(cell *model.UnderCell) error {
 	return err
 }
 
-func (u *underCellRepository) DeleteByName(name string) error {
-	query := `DELETE FROM under_cells WHERE name = $1`
+func (u *underCellRepository) DeleteByID(id int) error {
+	query := `DELETE FROM under_cells WHERE id = $1`
 
-	_, err := u.db.Exec(query, name)
+	_, err := u.db.Exec(query, id)
 	return err
 }
 

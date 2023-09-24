@@ -39,7 +39,9 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			//TODO проверка, если пусто то вставить метод создания заметки
-			markup := tgbotapi.NewInlineKeyboardMarkup(view.AddDataButtonData)
+			//TODO изменить NewInlineKeyboardRow
+			markup := tgbotapi.NewInlineKeyboardMarkup(view.AddDataButtonData,
+				tgbotapi.NewInlineKeyboardRow(view.MainMenuButtonData))
 			msg.ReplyMarkup = &markup
 
 			_, err = d.bot.Send(msg)
@@ -50,7 +52,11 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 		return underCellID, err
 	}
 
-	markup := tgbotapi.NewInlineKeyboardMarkup(view.AddDataButtonData, view.DeleteDataButtonData)
+	//TODO изменить
+	markup := tgbotapi.NewInlineKeyboardMarkup(view.AddDataButtonData,
+		view.DeleteDataButtonData,
+		tgbotapi.NewInlineKeyboardRow(view.MainMenuButtonData),
+	)
 	msg.ReplyMarkup = &markup
 
 	dataFile, file := model.IsFile(data.Describe)

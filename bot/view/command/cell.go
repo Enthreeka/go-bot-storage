@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"github.com/Enthreeka/go-bot-storage/bot/controller"
+	"github.com/Enthreeka/go-bot-storage/bot/model"
 	"github.com/Enthreeka/go-bot-storage/bot/view"
 	"github.com/Enthreeka/go-bot-storage/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -70,14 +71,14 @@ func (c *cellView) CreateCell(update *tgbotapi.Update, msg *tgbotapi.MessageConf
 		c.log.Error("failed create new cell by [%s]: %v", update.Message.From.UserName, err)
 
 		msg.Text = "Ошибка при создании новой ячейки!"
-		c.bot.Send(msg)
+		_, err = c.bot.Send(msg)
 		if err != nil {
 			c.log.Error("failed to send message in CreateCell %v", err)
 		}
 	}
 
 	msg.Text = "Ячейка добавлена успешно"
-	c.bot.Send(msg)
+	_, err = c.bot.Send(msg)
 	if err != nil {
 		c.log.Error("failed to send message in CreateCell %v", err)
 	}
@@ -85,13 +86,15 @@ func (c *cellView) CreateCell(update *tgbotapi.Update, msg *tgbotapi.MessageConf
 	return nil
 }
 
-func (c *cellView) CreateUnderCell(update *tgbotapi.Update, msg *tgbotapi.MessageConfig, cellID *int) error {
-	err := c.cellController.CreateUnderCell(update, cellID)
+func (c *cellView) CreateUnderCell(update *tgbotapi.Update, msg *tgbotapi.MessageConfig, cellData *string) error {
+	cellID, _ := model.FindIdName(*cellData)
+
+	err := c.cellController.CreateUnderCell(update, &cellID)
 	if err != nil {
 		c.log.Error("failed create new under_cell by [%s]: %v", update.Message.From.UserName, err)
 
 		msg.Text = "Ошибка при создании новой темы!"
-		c.bot.Send(msg)
+		_, err = c.bot.Send(msg)
 		if err != nil {
 			c.log.Error("failed to send message in CreateUnderCell %v", err)
 		}

@@ -66,10 +66,16 @@ func (c *cellView) ShowCell(update *tgbotapi.Update) error {
 	return nil
 }
 
-func (c *cellView) ShowUnderCell(update *tgbotapi.Update) (int, error) {
+func (c *cellView) ShowUnderCell(update *tgbotapi.Update, data string) (int, error) {
 	userID := update.CallbackQuery.Message.Chat.ID
 
-	cellID, name := model.FindIdName(update.CallbackQuery.Data)
+	var cellID int
+	var name string
+	if strings.HasPrefix(update.CallbackQuery.Data, "underCell_") {
+		cellID, name = model.FindIdName(data)
+	} else {
+		cellID, name = model.FindIdName(update.CallbackQuery.Data)
+	}
 
 	underCell, err := c.cellController.GetUnderCell(userID, cellID)
 	if err != nil {
@@ -88,8 +94,7 @@ func (c *cellView) ShowUnderCell(update *tgbotapi.Update) (int, error) {
 		}
 		rows = append(rows, row)
 
-		rows = append(rows, []tgbotapi.InlineKeyboardButton{view.CellButtonDataCreate})
-		rows = append(rows, []tgbotapi.InlineKeyboardButton{view.CellButtonDataDelete})
+		rows = append(rows, []tgbotapi.InlineKeyboardButton{view.CellButtonDataCreate, view.CellButtonDataDelete})
 		rows = append(rows, []tgbotapi.InlineKeyboardButton{view.MainMenuButtonData})
 
 	} else {
@@ -111,11 +116,20 @@ func (c *cellView) ShowUnderCell(update *tgbotapi.Update) (int, error) {
 
 	_, err = c.bot.Send(msg)
 	if err != nil {
-		c.log.Error("error sending under cell keyboard: %v", err)
+		c.log.Info("sending under cell keyboard -> create new message: %v", err)
+
+		msg := tgbotapi.NewMessage(userID, "")
+		msg.ReplyMarkup = &markup
+		msg.Text = name
+
+		_, err := c.bot.Send(msg)
+		if err != nil {
+			c.log.Error("failed to send message after delete under_cell %v", err)
+		}
+
 	}
 
 	return cellID, nil
-
 }
 
 func (c *cellView) DeleteCell(update *tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
@@ -149,4 +163,39 @@ func (c *cellView) DeleteCell(update *tgbotapi.Update) (*tgbotapi.MessageConfig,
 	}
 
 	return &msg, err
+}
+
+func (c *cellView) DeleteUnderCell(update *tgbotapi.Update) error {
+	msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "")
+
+	if !strings.HasPrefix(update.CallbackQuery.Data, "underCell_") {
+		msg.Text = "Для удаления была выбрана не тема!"
+		_, err := c.bot.Send(msg)
+		if err != nil {
+			c.log.Error("failed to send message in DeleteUnderCell %v", err)
+		}
+
+		return err
+	}
+
+	cellID, name := model.FindIdName(update.CallbackQuery.Data)
+	err := c.cellController.DeleteUnderCell(cellID)
+	if err != nil {
+		return err
+	}
+
+	msg.Text = fmt.Sprintf("Раздел: %s,удален успешно", name)
+
+	_, err = c.bot.Send(msg)
+	if err != nil {
+		c.log.Error("failed to send message in DeleteUnderCell %v", err)
+	}
+
+	//TODO вынести Request
+	if resp, err := c.bot.Request(tgbotapi.NewDeleteMessage(update.CallbackQuery.Message.Chat.ID,
+		update.CallbackQuery.Message.MessageID)); nil != err || !resp.Ok {
+		c.log.Error("failed to delete message id %d (%s): %v", update.CallbackQuery.Message.MessageID, string(resp.Result), err)
+	}
+
+	return err
 }

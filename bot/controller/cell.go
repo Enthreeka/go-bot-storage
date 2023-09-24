@@ -46,6 +46,15 @@ func (c *cellController) DeleteCell(id int) error {
 	return nil
 }
 
+func (c *cellController) DeleteUnderCell(id int) error {
+	err := c.underCellRepo.DeleteByID(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c *cellController) GetCell(id int64) ([]model.Cell, error) {
 	cells, err := c.cellRepo.GetByUserID(id)
 	if err != nil {
@@ -67,11 +76,6 @@ func (c *cellController) CreateUnderCell(update *tgbotapi.Update, cellID *int) e
 	}
 
 	return nil
-}
-
-func (c *cellController) DeleteUnderCell(name string) error {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (c *cellController) GetUnderCell(userID int64, cellID int) ([]model.UnderCell, error) {

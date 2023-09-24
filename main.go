@@ -62,7 +62,7 @@ func main() {
 
 	status := make(map[int64]*model.Status)
 
-	cellID := make(map[int64]*int)
+	cellData := make(map[int64]*string)
 	underCellID := make(map[int64]*int)
 
 	for update := range updates {
@@ -90,6 +90,7 @@ func main() {
 				//Drop all user state
 				if _, ok := status[userID]; ok {
 					status[userID].Callback["delete_cell"] = false
+					status[userID].Callback["delete_under_cell"] = false
 				}
 
 				cellViewCommand.ShowCell(&update, &msg)
@@ -105,8 +106,8 @@ func main() {
 					} else if userStatus.Callback["create_under_cell"] == true {
 						userStatus.Callback["create_under_cell"] = false
 
-						if cellID, ok := cellID[userID]; ok {
-							cellViewCommand.CreateUnderCell(&update, &msg, cellID)
+						if cell, ok := cellData[userID]; ok {
+							cellViewCommand.CreateUnderCell(&update, &msg, cell)
 						}
 					} else if userStatus.Callback["add_data"] == true {
 						userStatus.Callback["add_data"] = false
@@ -155,6 +156,8 @@ func main() {
 			case "delete_under_cell":
 				log.Info("[%s] CallbackQuery-[%s]", update.CallbackQuery.From.UserName, dataCommand)
 
+				status[userID].Callback["delete_under_cell"] = true
+				callbackMail.BotSendTextDeleteUnderCell(userID)
 			case "add_data":
 				log.Info("[%s] CallbackQuery-[%s]", update.CallbackQuery.From.UserName, dataCommand)
 
@@ -164,32 +167,47 @@ func main() {
 
 			}
 
-			// defines "cell_name_id" and "underCell_name_id" buttons
+			// Defines "cell_name_id" , "underCell_name_id" , "delete_cell" , "delete_under_cell" buttons
 			if model.IsCell(dataCommand) {
 				//TODO обработка ошибки
+
+				// Checking for delete cell user state. It is "delete_cell" button
 				if status[userID].Callback["delete_cell"] == true {
 					status[userID].Callback["delete_cell"] = false
 					log.Info("[%s] delete Cell - [%s]", update.CallbackQuery.From.UserName, dataCommand)
 
 					msg, _ := cellViewCallback.DeleteCell(&update)
+					//TODO посмотреть можно ли использоваь cellViewCallback, а не cellViewCommand
 					cellViewCommand.ShowCell(&update, msg)
+					// When user does not press "delete_cell" is executed display list cells. Is "cell_name_id" button
 				} else {
 					log.Info("[%s] open Cell - [%s]", update.CallbackQuery.From.UserName, dataCommand)
-					id, err := cellViewCallback.ShowUnderCell(&update)
+					_, err := cellViewCallback.ShowUnderCell(&update, "")
 					if err != nil {
 						log.Error("%v", err)
 					}
-					cellID[userID] = &id
+					cellData[userID] = &update.CallbackQuery.Data
 				}
 
 			} else if model.IsUnderCell(dataCommand) {
 				//TODO обработка ошибки
-				log.Info("[%s] open UnderCell - [%s]", update.CallbackQuery.From.UserName, dataCommand)
-				id, err := dataViewCallback.ShowData(&update)
-				if err != nil {
-					log.Error("%v", err)
+
+				if status[userID].Callback["delete_under_cell"] == true {
+					status[userID].Callback["delete_under_cell"] = false
+					log.Info("[%s] delete Under Cell - [%s]", update.CallbackQuery.From.UserName, dataCommand)
+
+					cellViewCallback.DeleteUnderCell(&update)
+					if cell, ok := cellData[userID]; ok {
+						cellViewCallback.ShowUnderCell(&update, *cell)
+					}
+				} else {
+					log.Info("[%s] open UnderCell - [%s]", update.CallbackQuery.From.UserName, dataCommand)
+					id, err := dataViewCallback.ShowData(&update)
+					if err != nil {
+						log.Error("%v", err)
+					}
+					underCellID[userID] = &id
 				}
-				underCellID[userID] = &id
 			}
 		}
 	}
