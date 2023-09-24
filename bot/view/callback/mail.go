@@ -48,7 +48,7 @@ func (c *callbackMail) BotSendTextData(userID int64) {
 }
 
 func (c *callbackMail) BotSendTextDeleteCell(userID int64) {
-	text := "Нажмите на раздел, котоырй вы хотите удалить:"
+	text := "Нажмите на раздел, который вы хотите УДАЛИТЬ.\nВ случае, если вы передумали, вызовите команду /start"
 	msg := tgbotapi.NewMessage(userID, text)
 
 	_, err := c.bot.Send(msg)

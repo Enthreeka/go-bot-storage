@@ -88,11 +88,12 @@ func main() {
 			switch update.Message.Command() {
 			case "start":
 				//Drop all user state
-				//if _, ok := status[userID]; ok {
-				//	status[userID] = &model.Status{}
-				//}
+				if _, ok := status[userID]; ok {
+					status[userID].Callback["delete_cell"] = false
+				}
 
 				cellViewCommand.ShowCell(&update, &msg)
+
 			case "info":
 				commandMail.BotSendInfo(&msg)
 			default:
@@ -168,11 +169,12 @@ func main() {
 				//TODO обработка ошибки
 				if status[userID].Callback["delete_cell"] == true {
 					status[userID].Callback["delete_cell"] = false
+					log.Info("[%s] delete Cell - [%s]", update.CallbackQuery.From.UserName, dataCommand)
 
-					msg, _ := cellViewCommand.DeleteCell(&update)
+					msg, _ := cellViewCallback.DeleteCell(&update)
 					cellViewCommand.ShowCell(&update, msg)
 				} else {
-					log.Info("[%s] open Cell - [%s]", update.CallbackQuery.From.UserName, update.CallbackQuery.Data)
+					log.Info("[%s] open Cell - [%s]", update.CallbackQuery.From.UserName, dataCommand)
 					id, err := cellViewCallback.ShowUnderCell(&update)
 					if err != nil {
 						log.Error("%v", err)
@@ -182,7 +184,7 @@ func main() {
 
 			} else if model.IsUnderCell(dataCommand) {
 				//TODO обработка ошибки
-				log.Info("[%s] open UnderCell - [%s]", update.CallbackQuery.From.UserName, update.CallbackQuery.Data)
+				log.Info("[%s] open UnderCell - [%s]", update.CallbackQuery.From.UserName, dataCommand)
 				id, err := dataViewCallback.ShowData(&update)
 				if err != nil {
 					log.Error("%v", err)

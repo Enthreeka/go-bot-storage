@@ -7,6 +7,7 @@ import (
 	"github.com/Enthreeka/go-bot-storage/bot/view"
 	"github.com/Enthreeka/go-bot-storage/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"strings"
 )
 
 type cellView struct {
@@ -115,4 +116,37 @@ func (c *cellView) ShowUnderCell(update *tgbotapi.Update) (int, error) {
 
 	return cellID, nil
 
+}
+
+func (c *cellView) DeleteCell(update *tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+	msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "")
+
+	if !strings.HasPrefix(update.CallbackQuery.Data, "cell_") {
+		msg.Text = "Для удаления был выбран не раздел!"
+		_, err := c.bot.Send(msg)
+		if err != nil {
+			c.log.Error("failed to send message in DeleteCell %v", err)
+		}
+
+		return &msg, err
+	}
+
+	cellID, name := model.FindIdName(update.CallbackQuery.Data)
+	err := c.cellController.DeleteCell(cellID)
+	if err != nil {
+		return &msg, err
+	}
+
+	msg.Text = fmt.Sprintf("Раздел: %s,удален успешно", name)
+	_, err = c.bot.Send(msg)
+	if err != nil {
+		c.log.Error("failed to send message in DeleteCell %v", err)
+	}
+
+	if resp, err := c.bot.Request(tgbotapi.NewDeleteMessage(update.CallbackQuery.Message.Chat.ID,
+		update.CallbackQuery.Message.MessageID)); nil != err || !resp.Ok {
+		c.log.Error("failed to delete message id %d (%s): %v", update.CallbackQuery.Message.MessageID, string(resp.Result), err)
+	}
+
+	return &msg, err
 }
