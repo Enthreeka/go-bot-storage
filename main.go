@@ -78,7 +78,7 @@ func main() {
 				log.Error("failed to check or create user: %v", err)
 			}
 
-			//Initialization Callback map
+			//Initialization Callback cache
 			if _, ok := status[userID]; !ok {
 				status[userID] = &model.Status{
 					Callback: make(map[string]bool),
@@ -91,6 +91,7 @@ func main() {
 				if _, ok := status[userID]; ok {
 					status[userID].Callback["delete_cell"] = false
 					status[userID].Callback["delete_under_cell"] = false
+					status[userID].Callback["update_data"] = false
 				}
 
 				cellViewCommand.ShowCell(&update, &msg)
@@ -116,6 +117,12 @@ func main() {
 						if underCellID, ok := underCellID[userID]; ok {
 							dataViewCommand.CreateData(&update, &msg, underCellID)
 						}
+					} else if userStatus.Callback["update_data"] == true {
+						userStatus.Callback["update_data"] = false
+
+						if underCellID, ok := underCellID[userID]; ok {
+							dataViewCommand.UpdateData(&update, &msg, underCellID)
+						}
 					} else {
 						commandMail.BotSendDefault(&msg)
 					}
@@ -126,7 +133,7 @@ func main() {
 			userID := update.CallbackQuery.Message.Chat.ID
 			dataCommand := update.CallbackQuery.Data
 
-			//Initialization Callback map for case with restart bot
+			//Initialization Callback cache for case with restart bot
 			if _, ok := status[userID]; !ok {
 				status[userID] = &model.Status{
 					Callback: make(map[string]bool),
@@ -164,8 +171,11 @@ func main() {
 
 				status[userID].Callback["add_data"] = true
 				callbackMail.BotSendTextData(userID)
-			case "delete_data":
+			case "update_data":
+				log.Info("[%s] CallbackQuery-[%s]", update.CallbackQuery.From.UserName, dataCommand)
 
+				status[userID].Callback["update_data"] = true
+				callbackMail.BotSendTextUpdateData(userID)
 			}
 
 			// Defines "cell_name_id" , "underCell_name_id" , "delete_cell" , "delete_under_cell" buttons

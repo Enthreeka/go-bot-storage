@@ -46,6 +46,7 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 			markup := tgbotapi.NewInlineKeyboardMarkup(view.AddDataButtonData,
 				tgbotapi.NewInlineKeyboardRow(view.MainMenuButtonData))
 			msg.ReplyMarkup = &markup
+			msg.Text = fmt.Sprintf("<b>%s</b>", name)
 
 			_, err = d.bot.Send(msg)
 			if err != nil {
@@ -56,8 +57,7 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 	}
 
 	//TODO изменить структуру кнопок
-	markup := tgbotapi.NewInlineKeyboardMarkup(view.AddDataButtonData,
-		view.DeleteDataButtonData,
+	markup := tgbotapi.NewInlineKeyboardMarkup(view.UpdateDataButtonData,
 		tgbotapi.NewInlineKeyboardRow(view.MainMenuButtonData),
 	)
 	msg.ReplyMarkup = &markup

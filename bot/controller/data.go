@@ -53,3 +53,23 @@ func (d *dataController) CreateData(update *tgbotapi.Update, UnderCellID *int) e
 
 	return nil
 }
+
+func (d *dataController) UpdateData(update *tgbotapi.Update, UnderCellID *int) error {
+	data := &model.Data{
+		UnderCellID: *UnderCellID,
+	}
+
+	if update.Message.Text != "" {
+		data.Describe = update.Message.Text
+	} else if update.Message.Document != nil {
+		describe := fmt.Sprintf("file-%s", update.Message.Document.FileID)
+		data.Describe = describe
+	}
+
+	err := d.dataRepo.Update(data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

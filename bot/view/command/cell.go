@@ -79,6 +79,7 @@ func (c *cellView) CreateCell(update *tgbotapi.Update, msg *tgbotapi.MessageConf
 		if err != nil {
 			c.log.Error("failed to send message in CreateCell %v", err)
 		}
+		return err
 	}
 
 	msg.Text = "Ячейка добавлена успешно"
@@ -102,6 +103,7 @@ func (c *cellView) CreateUnderCell(update *tgbotapi.Update, msg *tgbotapi.Messag
 		if err != nil {
 			c.log.Error("failed to send message in CreateUnderCell %v", err)
 		}
+		return err
 	}
 
 	msg.ParseMode = tgbotapi.ModeHTML

@@ -18,6 +18,6 @@ var CellButtonDataDelete = tgbotapi.NewInlineKeyboardButtonData("Удалить 
 
 var NoOneRowsButtonData = tgbotapi.NewInlineKeyboardButtonData("Пока что ничего нет", "no_one_rows")
 
-var AddDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Изменить данные", "add_data"))
+var AddDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Добавить данные", "add_data"))
 
-var DeleteDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Удалить данные", "delete_data"))
+var UpdateDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Изменить данные", "update_data"))

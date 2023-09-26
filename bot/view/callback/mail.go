@@ -66,3 +66,13 @@ func (c *callbackMail) BotSendTextDeleteUnderCell(userID int64) {
 		c.log.Error("failed to send message in CallbackQuery [delete_under_cell] %v", err)
 	}
 }
+
+func (c *callbackMail) BotSendTextUpdateData(userID int64) {
+	text := "Отправьте новые данные, которые будут расположены в данной теме.\nВ случае, если вы передумали, вызовите команду /start"
+	msg := tgbotapi.NewMessage(userID, text)
+
+	_, err := c.bot.Send(msg)
+	if err != nil {
+		c.log.Error("failed to send message in CallbackQuery [update_data] %v", err)
+	}
+}

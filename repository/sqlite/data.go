@@ -24,9 +24,11 @@ func (d *dataRepository) Create(data *model.Data) error {
 	return err
 }
 
-func (d *dataRepository) Delete(name string) error {
-	//query := `DELETE FROM data WHERE under_cells_id = $1`
-	panic("delete")
+func (d *dataRepository) Update(data *model.Data) error {
+	query := `UPDATE data SET describe = $1 WHERE under_cells_id = $2`
+
+	_, err := d.db.Exec(query, data.Describe, data.UnderCellID)
+	return err
 }
 
 func (d *dataRepository) GetByUnderCellID(underCellID int) (*model.Data, error) {
