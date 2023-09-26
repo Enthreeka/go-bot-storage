@@ -10,19 +10,21 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
-	"log"
 	"os"
 )
 
 func main() {
-	err := godotenv.Load("config/bot.env")
-	if err != nil {
-		log.Fatal("Error loading bot.env file")
+	log := logger.New()
+
+	_, err := os.Stat("config/bot.env")
+	if err == nil {
+		err = godotenv.Load("config/bot.env")
+		if err != nil {
+			log.Fatal("Error loading bot.env file")
+		}
 	}
 
 	tokenTelegram := os.Getenv("TG_TOKEN")
-
-	log := logger.New()
 
 	sqLite, err := sqlite.New()
 	if err != nil {
