@@ -2,11 +2,13 @@ package callback
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/Enthreeka/go-bot-storage/bot/controller"
 	"github.com/Enthreeka/go-bot-storage/bot/model"
 	"github.com/Enthreeka/go-bot-storage/bot/view"
 	"github.com/Enthreeka/go-bot-storage/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"strings"
 )
 
 type dataView struct {
@@ -29,10 +31,11 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 	underCellID, name := model.FindIdName(update.CallbackQuery.Data)
 
 	msg := tgbotapi.EditMessageTextConfig{
+		ParseMode: tgbotapi.ModeHTML,
 		BaseEdit: tgbotapi.BaseEdit{
 			ChatID:    userID,
 			MessageID: update.CallbackQuery.Message.MessageID,
-		}, Text: name,
+		},
 	}
 
 	data, err := d.dataController.GetData(underCellID)
@@ -52,7 +55,7 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 		return underCellID, err
 	}
 
-	//TODO изменить
+	//TODO изменить структуру кнопок
 	markup := tgbotapi.NewInlineKeyboardMarkup(view.AddDataButtonData,
 		view.DeleteDataButtonData,
 		tgbotapi.NewInlineKeyboardRow(view.MainMenuButtonData),
@@ -63,6 +66,7 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 	if file {
 		fileID := tgbotapi.FileID(dataFile)
 		msg := tgbotapi.DocumentConfig{
+			ParseMode: tgbotapi.ModeHTML,
 			BaseFile: tgbotapi.BaseFile{
 				BaseChat: tgbotapi.BaseChat{
 					ChatID:      userID,
@@ -70,7 +74,9 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 				},
 				File: fileID,
 			},
-			Caption: name}
+		}
+
+		msg.Caption = fmt.Sprintf("<b>%s</b>\n", name)
 
 		_, err = d.bot.Send(msg)
 		if err != nil {
@@ -79,7 +85,14 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 		return underCellID, nil
 	}
 
-	msg.Text = data.Describe
+	var builder strings.Builder
+	builder.WriteString("<b>")
+	builder.WriteString(name)
+	builder.WriteString("</b> ")
+	builder.WriteString("\n\n")
+	builder.WriteString(data.Describe)
+
+	msg.Text = builder.String()
 	_, err = d.bot.Send(msg)
 	if err != nil {
 		d.log.Error("error sending text: %v", err)

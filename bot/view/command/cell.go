@@ -57,7 +57,8 @@ func (c *cellView) ShowCell(update *tgbotapi.Update, msg *tgbotapi.MessageConfig
 	}
 	markup := tgbotapi.NewInlineKeyboardMarkup(rows...)
 
-	msg.Text = "Управление разделами"
+	msg.ParseMode = tgbotapi.ModeHTML
+	msg.Text = "<b>Управление разделами</b>"
 	msg.ReplyMarkup = &markup
 
 	_, err = c.bot.Send(msg)
@@ -103,7 +104,8 @@ func (c *cellView) CreateUnderCell(update *tgbotapi.Update, msg *tgbotapi.Messag
 		}
 	}
 
-	msg.Text = fmt.Sprintf("Тема: %s ,добавлена успешно", update.Message.Text)
+	msg.ParseMode = tgbotapi.ModeHTML
+	msg.Text = fmt.Sprintf("Тема: <b>%s</b> добавлена успешно", update.Message.Text)
 	_, err = c.bot.Send(msg)
 	if err != nil {
 		c.log.Error("failed to send message in CreateUnderCell %v", err)

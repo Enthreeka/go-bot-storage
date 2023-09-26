@@ -50,13 +50,14 @@ func (c *cellView) ShowCell(update *tgbotapi.Update) error {
 	markup := tgbotapi.NewInlineKeyboardMarkup(rows...)
 
 	msg := tgbotapi.EditMessageTextConfig{
+		ParseMode: tgbotapi.ModeHTML,
 		BaseEdit: tgbotapi.BaseEdit{
 			ChatID:    userID,
 			MessageID: update.CallbackQuery.Message.MessageID,
 		},
-		Text: "Главный раздел",
 	}
 
+	msg.Text = "<b>Управление разделами</b>"
 	msg.ReplyMarkup = &markup
 
 	_, err = c.bot.Send(msg)
@@ -107,13 +108,15 @@ func (c *cellView) ShowUnderCell(update *tgbotapi.Update, data string) (int, err
 	markup := tgbotapi.NewInlineKeyboardMarkup(rows...)
 
 	msg := tgbotapi.EditMessageTextConfig{
+		ParseMode: tgbotapi.ModeHTML,
 		BaseEdit: tgbotapi.BaseEdit{
 			ChatID:    userID,
 			MessageID: update.CallbackQuery.Message.MessageID,
-		}, Text: name,
+		},
 	}
 
 	msg.ReplyMarkup = &markup
+	msg.Text = fmt.Sprintf("<b>%s</b>", name)
 
 	_, err = c.bot.Send(msg)
 	if err != nil {
@@ -135,6 +138,7 @@ func (c *cellView) ShowUnderCell(update *tgbotapi.Update, data string) (int, err
 
 func (c *cellView) DeleteCell(update *tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
 	msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "")
+	msg.ParseMode = tgbotapi.ModeHTML
 
 	if !strings.HasPrefix(update.CallbackQuery.Data, "cell_") {
 		msg.Text = "Для удаления был выбран не раздел!"
@@ -152,7 +156,7 @@ func (c *cellView) DeleteCell(update *tgbotapi.Update) (*tgbotapi.MessageConfig,
 		return &msg, err
 	}
 
-	msg.Text = fmt.Sprintf("Раздел: %s,удален успешно", name)
+	msg.Text = fmt.Sprintf("Раздел: <b>%s</b> удален успешно", name)
 	_, err = c.bot.Send(msg)
 	if err != nil {
 		c.log.Error("failed to send message in DeleteCell %v", err)
@@ -168,6 +172,7 @@ func (c *cellView) DeleteCell(update *tgbotapi.Update) (*tgbotapi.MessageConfig,
 
 func (c *cellView) DeleteUnderCell(update *tgbotapi.Update) error {
 	msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "")
+	msg.ParseMode = tgbotapi.ModeHTML
 
 	if !strings.HasPrefix(update.CallbackQuery.Data, "underCell_") {
 		msg.Text = "Для удаления была выбрана не тема!"
@@ -185,7 +190,7 @@ func (c *cellView) DeleteUnderCell(update *tgbotapi.Update) error {
 		return err
 	}
 
-	msg.Text = fmt.Sprintf("Раздел: %s,удален успешно", name)
+	msg.Text = fmt.Sprintf("Раздел: <b>%s</b> удален успешно", name)
 
 	_, err = c.bot.Send(msg)
 	if err != nil {
