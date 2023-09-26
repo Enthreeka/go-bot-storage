@@ -103,6 +103,7 @@ func main() {
 						userStatus.Callback["create_cell"] = false
 
 						cellViewCommand.CreateCell(&update, &msg)
+						cellViewCommand.ShowCell(&update, &msg)
 					} else if userStatus.Callback["create_under_cell"] == true {
 						userStatus.Callback["create_under_cell"] = false
 
@@ -191,10 +192,9 @@ func main() {
 
 			} else if model.IsUnderCell(dataCommand) {
 				//TODO обработка ошибки
-
 				if status[userID].Callback["delete_under_cell"] == true {
 					status[userID].Callback["delete_under_cell"] = false
-					log.Info("[%s] delete Under Cell - [%s]", update.CallbackQuery.From.UserName, dataCommand)
+					log.Info("[%s] delete UnderCell - [%s]", update.CallbackQuery.From.UserName, dataCommand)
 
 					cellViewCallback.DeleteUnderCell(&update)
 					if cell, ok := cellData[userID]; ok {

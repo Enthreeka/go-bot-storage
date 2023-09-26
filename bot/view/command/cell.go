@@ -40,18 +40,21 @@ func (c *cellView) ShowCell(update *tgbotapi.Update, msg *tgbotapi.MessageConfig
 	var rows [][]tgbotapi.InlineKeyboardButton
 	var row []tgbotapi.InlineKeyboardButton
 
-	for _, el := range cells {
-		button := tgbotapi.NewInlineKeyboardButtonData(el.Name, fmt.Sprintf("cell_%s_%d", el.Name, el.ID))
-		row = append(row, button)
+	if len(cells) > 0 {
+		for _, el := range cells {
+			button := tgbotapi.NewInlineKeyboardButtonData(el.Name, fmt.Sprintf("cell_%s_%d", el.Name, el.ID))
+			row = append(row, button)
+			rows = append(rows, row)
+			row = []tgbotapi.InlineKeyboardButton{}
+
+		}
+
 		rows = append(rows, row)
-		row = []tgbotapi.InlineKeyboardButton{}
+		rows = append(rows, []tgbotapi.InlineKeyboardButton{view.CreateCellButtonData, view.DeleteCellButtonData})
 
+	} else {
+		rows = append(rows, []tgbotapi.InlineKeyboardButton{view.CreateCellButtonData, view.DeleteCellButtonData})
 	}
-
-	//TODO проверка если в len(cell) == 0
-	rows = append(rows, row)
-	rows = append(rows, []tgbotapi.InlineKeyboardButton{view.CreateCellButtonData, view.DeleteCellButtonData})
-
 	markup := tgbotapi.NewInlineKeyboardMarkup(rows...)
 
 	msg.Text = "Управление разделами"

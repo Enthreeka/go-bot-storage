@@ -32,7 +32,6 @@ var (
 
 	tableData = `CREATE TABLE IF NOT EXISTS data(
   id INTEGER primary key AUTOINCREMENT,
-  name text,
   under_cells_id int,
   describe text null,
   foreign key (under_cells_id)

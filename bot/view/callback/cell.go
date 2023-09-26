@@ -53,7 +53,8 @@ func (c *cellView) ShowCell(update *tgbotapi.Update) error {
 		BaseEdit: tgbotapi.BaseEdit{
 			ChatID:    userID,
 			MessageID: update.CallbackQuery.Message.MessageID,
-		}, Text: "Главный раздел",
+		},
+		Text: "Главный раздел",
 	}
 
 	msg.ReplyMarkup = &markup
