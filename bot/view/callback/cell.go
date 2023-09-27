@@ -162,10 +162,7 @@ func (c *cellView) DeleteCell(update *tgbotapi.Update) (*tgbotapi.MessageConfig,
 		c.log.Error("failed to send message in DeleteCell %v", err)
 	}
 
-	if resp, err := c.bot.Request(tgbotapi.NewDeleteMessage(update.CallbackQuery.Message.Chat.ID,
-		update.CallbackQuery.Message.MessageID)); nil != err || !resp.Ok {
-		c.log.Error("failed to delete message id %d (%s): %v", update.CallbackQuery.Message.MessageID, string(resp.Result), err)
-	}
+	c.deleteRequest(update)
 
 	return &msg, err
 }
@@ -197,11 +194,14 @@ func (c *cellView) DeleteUnderCell(update *tgbotapi.Update) error {
 		c.log.Error("failed to send message in DeleteUnderCell %v", err)
 	}
 
-	//TODO вынести Request
+	c.deleteRequest(update)
+
+	return err
+}
+
+func (c *cellView) deleteRequest(update *tgbotapi.Update) {
 	if resp, err := c.bot.Request(tgbotapi.NewDeleteMessage(update.CallbackQuery.Message.Chat.ID,
 		update.CallbackQuery.Message.MessageID)); nil != err || !resp.Ok {
 		c.log.Error("failed to delete message id %d (%s): %v", update.CallbackQuery.Message.MessageID, string(resp.Result), err)
 	}
-
-	return err
 }

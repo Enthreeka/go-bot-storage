@@ -34,3 +34,7 @@ migrations
 
 # SqLite tables
 bot_lite.db
+
+# docker
+docker-compose.yaml
+Dockerfile

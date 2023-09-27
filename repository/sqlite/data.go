@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/Enthreeka/go-bot-storage/bot/model"
 	"github.com/Enthreeka/go-bot-storage/repository"
 )
@@ -37,7 +36,6 @@ func (d *dataRepository) GetByUnderCellID(underCellID int) (*model.Data, error) 
 	data := &model.Data{}
 	err := d.db.QueryRow(query, underCellID).Scan(&data.Describe)
 	if err != nil {
-		fmt.Println(err)
 		if err == sql.ErrNoRows {
 			return nil, sql.ErrNoRows
 		}

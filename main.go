@@ -65,7 +65,7 @@ func main() {
 	status := make(map[int64]*model.Status)
 
 	cellData := make(map[int64]*string)
-	underCellID := make(map[int64]*int)
+	underCellID := make(map[int64]*string)
 
 	for update := range updates {
 		if update.Message != nil {
@@ -118,12 +118,14 @@ func main() {
 
 						if underCellID, ok := underCellID[userID]; ok {
 							dataViewCommand.CreateData(&update, &msg, underCellID)
+							dataViewCommand.ShowData(&update, underCellID)
 						}
 					} else if userStatus.Callback["update_data"] == true {
 						userStatus.Callback["update_data"] = false
 
 						if underCellID, ok := underCellID[userID]; ok {
 							dataViewCommand.UpdateData(&update, &msg, underCellID)
+							dataViewCommand.ShowData(&update, underCellID)
 						}
 					} else {
 						commandMail.BotSendDefault(&msg)
@@ -214,11 +216,12 @@ func main() {
 					}
 				} else {
 					log.Info("[%s] open UnderCell - [%s]", update.CallbackQuery.From.UserName, dataCommand)
-					id, err := dataViewCallback.ShowData(&update)
+					_, err := dataViewCallback.ShowData(&update)
 					if err != nil {
 						log.Error("%v", err)
 					}
-					underCellID[userID] = &id
+					//underCellID[userID] = &id
+					underCellID[userID] = &update.CallbackQuery.Data
 				}
 			}
 		}

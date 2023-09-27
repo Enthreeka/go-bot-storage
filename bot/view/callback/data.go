@@ -41,7 +41,6 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 	data, err := d.dataController.GetData(underCellID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			//TODO проверка, если пусто то вставить метод создания заметки
 			//TODO изменить NewInlineKeyboardRow
 			markup := tgbotapi.NewInlineKeyboardMarkup(view.AddDataButtonData,
 				tgbotapi.NewInlineKeyboardRow(view.MainMenuButtonData))
@@ -81,6 +80,7 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 		_, err = d.bot.Send(msg)
 		if err != nil {
 			d.log.Error("error sending document: %v", err)
+			return 0, err
 		}
 		return underCellID, nil
 	}
