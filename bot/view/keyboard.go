@@ -1,6 +1,11 @@
 package view
 
-import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+import (
+	"fmt"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"regexp"
+	"unicode/utf8"
+)
 
 var AddCellKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 	tgbotapi.NewInlineKeyboardRow(
@@ -21,3 +26,16 @@ var NoOneRowsButtonData = tgbotapi.NewInlineKeyboardButtonData("Пока что 
 var AddDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Добавить данные", "add_data"))
 
 var UpdateDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Изменить данные", "update_data"))
+
+func KeyboardValidation(text string) bool {
+	// Checking for count symbol in text
+	if utf8.RuneCountInString(text) > 37 {
+		fmt.Println(utf8.RuneCountInString(text))
+		return false
+	}
+	// Checking for symbol in ASCII table
+	validPattern := regexp.MustCompile(`^[a-zA-Z0-9\s\-_!@#$%^&*()]+`)
+
+	return validPattern.MatchString(text)
+
+}

@@ -65,7 +65,7 @@ func main() {
 	status := make(map[int64]*model.Status)
 
 	cellData := make(map[int64]*string)
-	underCellID := make(map[int64]*string)
+	underCellData := make(map[int64]*string)
 
 	for update := range updates {
 		if update.Message != nil {
@@ -97,7 +97,6 @@ func main() {
 				}
 
 				cellViewCommand.ShowCell(&update, &msg)
-
 			case "info":
 				commandMail.BotSendInfo(&msg)
 			default:
@@ -112,18 +111,19 @@ func main() {
 
 						if cell, ok := cellData[userID]; ok {
 							cellViewCommand.CreateUnderCell(&update, &msg, cell)
+							cellViewCommand.ShowUnderCell(&update, cell)
 						}
 					} else if userStatus.Callback["add_data"] == true {
 						userStatus.Callback["add_data"] = false
 
-						if underCellID, ok := underCellID[userID]; ok {
+						if underCellID, ok := underCellData[userID]; ok {
 							dataViewCommand.CreateData(&update, &msg, underCellID)
 							dataViewCommand.ShowData(&update, underCellID)
 						}
 					} else if userStatus.Callback["update_data"] == true {
 						userStatus.Callback["update_data"] = false
 
-						if underCellID, ok := underCellID[userID]; ok {
+						if underCellID, ok := underCellData[userID]; ok {
 							dataViewCommand.UpdateData(&update, &msg, underCellID)
 							dataViewCommand.ShowData(&update, underCellID)
 						}
@@ -196,6 +196,7 @@ func main() {
 					cellViewCommand.ShowCell(&update, msg)
 					// When user does not press "delete_cell" is executed display list cells. Is "cell_name_id" button
 				} else {
+					//TODO убрать возвращаемый int в ShowUnderCell
 					log.Info("[%s] open Cell - [%s]", update.CallbackQuery.From.UserName, dataCommand)
 					_, err := cellViewCallback.ShowUnderCell(&update, "")
 					if err != nil {
@@ -220,8 +221,7 @@ func main() {
 					if err != nil {
 						log.Error("%v", err)
 					}
-					//underCellID[userID] = &id
-					underCellID[userID] = &update.CallbackQuery.Data
+					underCellData[userID] = &update.CallbackQuery.Data
 				}
 			}
 		}

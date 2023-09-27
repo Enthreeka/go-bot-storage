@@ -8,13 +8,6 @@ type Data struct {
 	Describe    string `json:"describe"`
 }
 
-func IsData(data string) bool {
-	if strings.HasPrefix(data, data) {
-		return true
-	}
-	return false
-}
-
 func IsFile(data string) (string, bool) {
 	prefix := "file-"
 
