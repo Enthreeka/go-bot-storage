@@ -34,6 +34,7 @@ func (c *cellView) ShowCell(update *tgbotapi.Update, msg *tgbotapi.MessageConfig
 
 	cells, err := c.cellController.GetCell(userID)
 	if err != nil {
+		c.log.Error("failed to get cell: %v", err)
 		return err
 	}
 
@@ -71,6 +72,8 @@ func (c *cellView) ShowCell(update *tgbotapi.Update, msg *tgbotapi.MessageConfig
 
 func (c *cellView) CreateCell(update *tgbotapi.Update, msg *tgbotapi.MessageConfig) error {
 	if !view.KeyboardValidation(update.Message.Text) {
+		c.log.Error("invalid button data")
+
 		msg.Text = "Недопустимое название кнопки!"
 		_, err := c.bot.Send(msg)
 		if err != nil {

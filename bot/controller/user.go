@@ -38,12 +38,14 @@ func (u *userController) CheckUser(update *tgbotapi.Update) (*model.User, error)
 
 			user, err = u.createUser(userModel)
 			if err != nil {
+				u.log.Error("failed to create new user: %v", err)
 				return nil, err
 			}
 
 			u.log.Info("Create new user - id:[%d],username:[%s]", userID, update.Message.From.UserName)
 			return user, nil
 		}
+		u.log.Error("failed to get by id: %v", err)
 		return nil, err
 	}
 
