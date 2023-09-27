@@ -32,7 +32,7 @@ func (d *dataView) CreateData(update *tgbotapi.Update, msg *tgbotapi.MessageConf
 
 	err := d.dataController.CreateData(update, &underCellID)
 	if err != nil {
-		d.log.Error("failed to create [add_data] by [%s]: %v", update.Message.From.UserName, err)
+		d.log.Error("failed to create in [add_data] by [%s]: %v", update.Message.From.UserName, err)
 
 		msg.Text = "Ошибка при добавлении данных!"
 		_, err = d.bot.Send(msg)
@@ -86,6 +86,7 @@ func (d *dataView) ShowData(update *tgbotapi.Update, cellData *string) error {
 
 	data, err := d.dataController.GetData(underCellID)
 	if err != nil {
+		d.log.Error("failed to show data in [add_data] by [%s]: %v", update.Message.From.UserName, err)
 		return err
 	}
 	markup := tgbotapi.NewInlineKeyboardMarkup(view.UpdateDataButtonData,
