@@ -34,7 +34,7 @@ func (c *cellView) ShowCell(update *tgbotapi.Update, msg *tgbotapi.MessageConfig
 
 	cells, err := c.cellController.GetCell(userID)
 	if err != nil {
-		c.log.Error("failed to get cell: %v", err)
+		c.log.Error("failed to get cell in [create_cell] or [delete_cell] by [%s]: %v", update.Message.From.UserName, err)
 		return err
 	}
 
@@ -126,7 +126,7 @@ func (c *cellView) CreateUnderCell(update *tgbotapi.Update, msg *tgbotapi.Messag
 		msg.Text = "Ошибка при создании новой темы!"
 		_, err = c.bot.Send(msg)
 		if err != nil {
-			c.log.Error("failed to send message in CreateUnderCell %v", err)
+			c.log.Error("failed to send message in CreateUnderCell by [%s]: %v", update.Message.From.UserName, err)
 		}
 		return err
 	}

@@ -41,9 +41,13 @@ func (d *dataController) CreateData(update *tgbotapi.Update, UnderCellID *int) e
 
 	if update.Message.Text != "" {
 		data.Describe = update.Message.Text
+
+		d.log.Info("[%s] - add text", update.Message.Chat.UserName)
 	} else if update.Message.Document != nil {
 		describe := fmt.Sprintf("file-%s", update.Message.Document.FileID)
 		data.Describe = describe
+
+		d.log.Info("[%s] - add document", update.Message.Chat.UserName)
 	}
 
 	err := d.dataRepo.Create(data)

@@ -30,6 +30,7 @@ func (c *cellView) ShowCell(update *tgbotapi.Update) error {
 
 	cells, err := c.cellController.GetCell(userID)
 	if err != nil {
+		c.log.Error("failed to get cell in [back_main] by [%s]: %v", update.CallbackQuery.Message.From.UserName, err)
 		return err
 	}
 
@@ -81,6 +82,7 @@ func (c *cellView) ShowUnderCell(update *tgbotapi.Update, data string) (int, err
 
 	underCell, err := c.cellController.GetUnderCell(userID, cellID)
 	if err != nil {
+		c.log.Error("failed to get under cell in [cell_name_id] by [%s]: %v", update.CallbackQuery.Message.From.UserName, err)
 		return 0, err
 	}
 
@@ -129,8 +131,8 @@ func (c *cellView) ShowUnderCell(update *tgbotapi.Update, data string) (int, err
 		_, err := c.bot.Send(msg)
 		if err != nil {
 			c.log.Error("failed to send message after delete under_cell %v", err)
+			return 0, err
 		}
-
 	}
 
 	return cellID, nil
@@ -153,6 +155,7 @@ func (c *cellView) DeleteCell(update *tgbotapi.Update) (*tgbotapi.MessageConfig,
 	cellID, name := model.FindIdName(update.CallbackQuery.Data)
 	err := c.cellController.DeleteCell(cellID)
 	if err != nil {
+		c.log.Error("failed to delete cell in [delete_cell] by [%s]: %v", update.CallbackQuery.Message.From.UserName, err)
 		return &msg, err
 	}
 
@@ -184,6 +187,7 @@ func (c *cellView) DeleteUnderCell(update *tgbotapi.Update) error {
 	cellID, name := model.FindIdName(update.CallbackQuery.Data)
 	err := c.cellController.DeleteUnderCell(cellID)
 	if err != nil {
+		c.log.Error("failed to delete underCell in [delete_under_cell] by [%s]: %v", update.CallbackQuery.Message.From.UserName, err)
 		return err
 	}
 

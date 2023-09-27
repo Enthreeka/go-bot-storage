@@ -215,6 +215,7 @@ func main() {
 					if cell, ok := cellData[userID]; ok {
 						cellViewCallback.ShowUnderCell(&update, *cell)
 					}
+					// When user does not press "delete_under_cell" is executed display list cells. Is "underCell_name_id" button
 				} else {
 					log.Info("[%s] open UnderCell - [%s]", update.CallbackQuery.From.UserName, dataCommand)
 					_, err := dataViewCallback.ShowData(&update)

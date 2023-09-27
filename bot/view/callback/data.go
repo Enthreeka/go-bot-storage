@@ -51,7 +51,9 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 			if err != nil {
 				d.log.Error("error sending under cell keyboard: %v", err)
 			}
+			return 0, nil
 		}
+		d.log.Error("failed to get data in [underCell_name_id] by [%s]: %v", update.CallbackQuery.Message.From.UserName, err)
 		return underCellID, err
 	}
 
@@ -82,6 +84,8 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 			d.log.Error("error sending document: %v", err)
 			return 0, err
 		}
+
+		d.log.Info("[%s] received document", update.CallbackQuery.Message.From.UserName)
 		return underCellID, nil
 	}
 
@@ -98,5 +102,6 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 		d.log.Error("error sending text: %v", err)
 	}
 
+	d.log.Info("[%s] received text", update.CallbackQuery.Message.From.UserName)
 	return underCellID, nil
 }

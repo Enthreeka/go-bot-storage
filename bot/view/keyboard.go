@@ -34,7 +34,7 @@ func KeyboardValidation(text string) bool {
 		return false
 	}
 	// Checking for symbol in ASCII table
-	validPattern := regexp.MustCompile(`^[a-zA-Z0-9\s\-_!@#$%^&*()]+`)
+	validPattern := regexp.MustCompile(`^[а-яА-Яa-zA-Z0-9\s\-_!@#$%^&*()]+`)
 
 	return validPattern.MatchString(text)
 

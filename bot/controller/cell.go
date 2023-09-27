@@ -33,7 +33,7 @@ func (c *cellController) CreateCell(update *tgbotapi.Update) error {
 		return err
 	}
 
-	c.log.Info("cell creation has been successfully completed")
+	c.log.Info("[%s] cell creation has been successfully completed", update.Message.From.UserName)
 	return nil
 }
 
