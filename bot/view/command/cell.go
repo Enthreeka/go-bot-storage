@@ -106,6 +106,8 @@ func (c *cellView) CreateCell(update *tgbotapi.Update, msg *tgbotapi.MessageConf
 
 func (c *cellView) CreateUnderCell(update *tgbotapi.Update, msg *tgbotapi.MessageConfig, cellData *string) error {
 	if !view.KeyboardValidation(update.Message.Text) {
+		c.log.Error("invalid button data")
+
 		msg.Text = "Недопустимое название кнопки!"
 		_, err := c.bot.Send(msg)
 		if err != nil {
@@ -119,7 +121,7 @@ func (c *cellView) CreateUnderCell(update *tgbotapi.Update, msg *tgbotapi.Messag
 
 	err := c.cellController.CreateUnderCell(update, &cellID)
 	if err != nil {
-		c.log.Error("failed create new under_cell by [%s]: %v", update.Message.From.UserName, err)
+		c.log.Error("failed create new [create_under_cell] by [%s]: %v", update.Message.From.UserName, err)
 
 		msg.Text = "Ошибка при создании новой темы!"
 		_, err = c.bot.Send(msg)
@@ -149,6 +151,7 @@ func (c *cellView) ShowUnderCell(update *tgbotapi.Update, cellData *string) erro
 
 	underCell, err := c.cellController.GetUnderCell(userID, cellID)
 	if err != nil {
+		c.log.Error("failed to show underCell [create_under_cell] by [%s]: %v", update.Message.From.UserName, err)
 		return err
 	}
 
