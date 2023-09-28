@@ -91,8 +91,9 @@ func (d *dataView) ShowData(update *tgbotapi.Update, cellData *string) error {
 		d.log.Error("failed to show data in [update_data] by [%s]: %v", update.Message.From.UserName, err)
 		return err
 	}
-	markup := tgbotapi.NewInlineKeyboardMarkup(view.UpdateDataButtonData,
-		view.RemindDataButtonData,
+	markup := tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(view.UpdateDataButtonData),
+		tgbotapi.NewInlineKeyboardRow(view.RemindDataButtonData),
 		tgbotapi.NewInlineKeyboardRow(view.MainMenuButtonData),
 	)
 	msg.ReplyMarkup = &markup
@@ -135,6 +136,7 @@ func (d *dataView) RemindData(update *tgbotapi.Update, data *string) error {
 	userID := update.Message.Chat.ID
 	msg := tgbotapi.NewMessage(userID, "")
 
+	// Checking on correct input date
 	callTime, err := time.ParseInLocation("15:04 02.01.2006", update.Message.Text, time.Local)
 	if err != nil {
 		d.log.Error("invalid date format by [%s]: %s", update.Message.From.UserName, update.Message.Text)
@@ -146,7 +148,7 @@ func (d *dataView) RemindData(update *tgbotapi.Update, data *string) error {
 		return err
 	}
 
-	// TODO валидацию на не более года
+	// Checking is low then time now
 	if !callTime.After(time.Now()) {
 		d.log.Error("the requested time is longer than the present [%s]: %s", update.Message.From.UserName, update.Message.Text)
 		msg.Text = "Неправильно введенный формат данных!"
@@ -155,6 +157,17 @@ func (d *dataView) RemindData(update *tgbotapi.Update, data *string) error {
 			d.log.Error("failed to send message in RemindData")
 		}
 		return errors.New("callTime is greater than time.Now()")
+	}
+
+	// Checking is date more than 1 year
+	if callTime.After(time.Now().AddDate(1, 0, 0)) {
+		d.log.Error("the requested time is more than one year in the future [%s]: %s", update.Message.From.UserName, update.Message.Text)
+		msg.Text = "Неправильно введенный формат данных! Дата не может быть более чем через год."
+		_, err := d.bot.Send(msg)
+		if err != nil {
+			d.log.Error("failed to send message in RemindData")
+		}
+		return errors.New("callTime is more than one year in the future")
 	}
 
 	duration := callTime.Sub(time.Now())

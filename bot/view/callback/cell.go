@@ -69,7 +69,7 @@ func (c *cellView) ShowCell(update *tgbotapi.Update) error {
 	return nil
 }
 
-func (c *cellView) ShowUnderCell(update *tgbotapi.Update, data string) (int, error) {
+func (c *cellView) ShowUnderCell(update *tgbotapi.Update, data string) error {
 	userID := update.CallbackQuery.Message.Chat.ID
 
 	var cellID int
@@ -83,7 +83,7 @@ func (c *cellView) ShowUnderCell(update *tgbotapi.Update, data string) (int, err
 	underCell, err := c.cellController.GetUnderCell(userID, cellID)
 	if err != nil {
 		c.log.Error("failed to get under cell in [cell_name_id] by [%s]: %v", update.CallbackQuery.Message.From.UserName, err)
-		return 0, err
+		return err
 	}
 
 	var rows [][]tgbotapi.InlineKeyboardButton
@@ -131,11 +131,11 @@ func (c *cellView) ShowUnderCell(update *tgbotapi.Update, data string) (int, err
 		_, err := c.bot.Send(msg)
 		if err != nil {
 			c.log.Error("failed to send message after delete under_cell %v", err)
-			return 0, err
+			return err
 		}
 	}
 
-	return cellID, nil
+	return nil
 }
 
 func (c *cellView) DeleteCell(update *tgbotapi.Update) (*tgbotapi.MessageConfig, error) {

@@ -23,11 +23,11 @@ var CellButtonDataDelete = tgbotapi.NewInlineKeyboardButtonData("Удалить 
 
 var NoOneRowsButtonData = tgbotapi.NewInlineKeyboardButtonData("Пока что ничего нет", "no_one_rows")
 
-var AddDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Добавить данные", "add_data"))
+var AddDataButtonData = tgbotapi.NewInlineKeyboardButtonData("Добавить данные", "add_data")
 
-var UpdateDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Изменить данные", "update_data"))
+var UpdateDataButtonData = tgbotapi.NewInlineKeyboardButtonData("Изменить данные", "update_data")
 
-var RemindDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Сделать напоминание", "remind_data"))
+var RemindDataButtonData = tgbotapi.NewInlineKeyboardButtonData("Сделать напоминание", "remind_data")
 
 func KeyboardValidation(text string) bool {
 	// Checking for count symbol in text

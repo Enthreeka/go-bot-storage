@@ -32,7 +32,6 @@ func IsUnderCell(data string) bool {
 	return false
 }
 
-// TODO обработку ошибок
 func FindIdName(data string) (int, string) {
 	parts := strings.Split(data, "_")
 	if len(parts) < 2 {

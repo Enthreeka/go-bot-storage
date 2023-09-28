@@ -26,7 +26,7 @@ func NewDataView(dataController controller.Data, bot *tgbotapi.BotAPI, log *logg
 	}
 }
 
-func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
+func (d *dataView) ShowData(update *tgbotapi.Update) error {
 	userID := update.CallbackQuery.Message.Chat.ID
 	underCellID, name := model.FindIdName(update.CallbackQuery.Data)
 
@@ -41,8 +41,8 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 	data, err := d.dataController.GetData(underCellID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			//TODO изменить NewInlineKeyboardRow
-			markup := tgbotapi.NewInlineKeyboardMarkup(view.AddDataButtonData,
+			markup := tgbotapi.NewInlineKeyboardMarkup(
+				tgbotapi.NewInlineKeyboardRow(view.AddDataButtonData),
 				tgbotapi.NewInlineKeyboardRow(view.MainMenuButtonData))
 			msg.ReplyMarkup = &markup
 			msg.Text = fmt.Sprintf("<b>%s</b>", name)
@@ -51,17 +51,16 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 			if err != nil {
 				d.log.Error("error sending under cell keyboard: %v", err)
 			}
-			return 0, nil
+			return nil
 		}
 		d.log.Error("failed to get data in [underCell_name_id] by [%s]: %v", update.CallbackQuery.Message.From.UserName, err)
-		return underCellID, err
+		return err
 	}
 
-	//TODO изменить структуру кнопок
-	markup := tgbotapi.NewInlineKeyboardMarkup(view.UpdateDataButtonData,
-		view.RemindDataButtonData,
-		tgbotapi.NewInlineKeyboardRow(view.MainMenuButtonData),
-	)
+	markup := tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(view.UpdateDataButtonData),
+		tgbotapi.NewInlineKeyboardRow(view.RemindDataButtonData),
+		tgbotapi.NewInlineKeyboardRow(view.MainMenuButtonData))
 	msg.ReplyMarkup = &markup
 
 	dataFile, file := model.IsFile(data.Describe)
@@ -83,11 +82,11 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 		_, err = d.bot.Send(msg)
 		if err != nil {
 			d.log.Error("error sending document: %v", err)
-			return 0, err
+			return err
 		}
 
 		d.log.Info("[%s] received document", update.CallbackQuery.Message.From.UserName)
-		return underCellID, nil
+		return nil
 	}
 
 	var builder strings.Builder
@@ -103,5 +102,5 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 		d.log.Error("error sending text: %v", err)
 	}
 
-	return underCellID, nil
+	return nil
 }
