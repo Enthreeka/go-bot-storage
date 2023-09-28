@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/Enthreeka/go-bot-storage/bot/model"
@@ -10,20 +11,20 @@ import (
 )
 
 type dataController struct {
-	dataRepo repository.Data
+	dataRepoSqlite repository.Data
 
 	log *logger.Logger
 }
 
 func NewDataController(dataRepo repository.Data, log *logger.Logger) Data {
 	return &dataController{
-		dataRepo: dataRepo,
-		log:      log,
+		dataRepoSqlite: dataRepo,
+		log:            log,
 	}
 }
 
 func (d *dataController) GetData(underCellID int) (*model.Data, error) {
-	data, err := d.dataRepo.GetByUnderCellID(underCellID)
+	data, err := d.dataRepoSqlite.GetByUnderCellID(context.Background(), underCellID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, sql.ErrNoRows
@@ -50,7 +51,7 @@ func (d *dataController) CreateData(update *tgbotapi.Update, UnderCellID *int) e
 		d.log.Info("[%s] - add document", update.Message.Chat.UserName)
 	}
 
-	err := d.dataRepo.Create(data)
+	err := d.dataRepoSqlite.Create(context.Background(), data)
 	if err != nil {
 		return err
 	}
@@ -70,7 +71,7 @@ func (d *dataController) UpdateData(update *tgbotapi.Update, UnderCellID *int) e
 		data.Describe = describe
 	}
 
-	err := d.dataRepo.Update(data)
+	err := d.dataRepoSqlite.Update(context.Background(), data)
 	if err != nil {
 		return err
 	}

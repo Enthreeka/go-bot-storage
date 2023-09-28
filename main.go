@@ -1,37 +1,40 @@
 package main
 
 import (
+	"context"
 	"github.com/Enthreeka/go-bot-storage/bot/controller"
 	"github.com/Enthreeka/go-bot-storage/bot/model"
 	"github.com/Enthreeka/go-bot-storage/bot/view/callback"
 	"github.com/Enthreeka/go-bot-storage/bot/view/command"
+	"github.com/Enthreeka/go-bot-storage/config"
 	"github.com/Enthreeka/go-bot-storage/logger"
+	"github.com/Enthreeka/go-bot-storage/repository/redis"
 	"github.com/Enthreeka/go-bot-storage/repository/sqlite"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
-	"os"
 )
 
 func main() {
 	log := logger.New()
 
-	_, err := os.Stat("config/bot.env")
-	if err == nil {
-		err = godotenv.Load("config/bot.env")
-		if err != nil {
-			log.Fatal("Error loading bot.env file")
-		}
+	cfg, err := config.New()
+	if err != nil {
+		log.Fatal("failed to load config: %v", err)
 	}
-
-	tokenTelegram := os.Getenv("TG_TOKEN")
 
 	sqLite, err := sqlite.New()
 	if err != nil {
 		log.Fatal("failed to connect SqLite: %v", err)
 	}
 
-	bot, err := tgbotapi.NewBotAPI(tokenTelegram)
+	// Connect to Redis
+	rds, err := redis.New(context.Background(), cfg)
+	if err != nil {
+		log.Error("redis is not working: %v", err)
+	}
+	defer rds.Close()
+
+	bot, err := tgbotapi.NewBotAPI(cfg.Telegram.Token)
 	if err != nil {
 		log.Fatal("failed to load token %v", err)
 	}
@@ -46,11 +49,13 @@ func main() {
 	updates := bot.GetUpdatesChan(u)
 
 	userRepo := sqlite.NewUserRepository(sqLite)
-	cellRepo := sqlite.NewCellRepository(sqLite)
+	cellRepo := sqlite.NewCellRepositorySL(sqLite)
 	underCellRepo := sqlite.NewUnderCellRepository(sqLite)
 	dataRepo := sqlite.NewDataRepository(sqLite)
 
-	userController := controller.NewUserController(userRepo, log)
+	userRepoRedis := redis.NewUserRepositoryRedis(rds)
+
+	userController := controller.NewUserController(userRepo, userRepoRedis, log)
 	cellController := controller.NewCellController(cellRepo, underCellRepo, log)
 	dataController := controller.NewDataController(dataRepo, log)
 
@@ -81,7 +86,7 @@ func main() {
 				log.Error("failed to check or create user: %v", err)
 			}
 
-			//Initialization Callback cache
+			//Initialization Callback redis
 			if _, ok := status[userID]; !ok {
 				status[userID] = &model.Status{
 					Callback: make(map[string]bool),
@@ -150,7 +155,7 @@ func main() {
 			userID := update.CallbackQuery.Message.Chat.ID
 			dataCommand := update.CallbackQuery.Data
 
-			//Initialization Callback cache for case with restart bot
+			//Initialization Callback redis for case with restart bot
 			if _, ok := status[userID]; !ok {
 				status[userID] = &model.Status{
 					Callback: make(map[string]bool),
@@ -202,8 +207,6 @@ func main() {
 
 			// Defines "cell_name_id" , "underCell_name_id" , "delete_cell" , "delete_under_cell" buttons
 			if model.IsCell(dataCommand) {
-				//TODO обработка ошибки
-
 				// Checking for delete cell user state. It is "delete_cell" button
 				if status[userID].Callback["delete_cell"] == true {
 					status[userID].Callback["delete_cell"] = false
@@ -222,7 +225,6 @@ func main() {
 					cellData[userID] = &update.CallbackQuery.Data
 				}
 			} else if model.IsUnderCell(dataCommand) {
-				//TODO обработка ошибки
 				if status[userID].Callback["delete_under_cell"] == true {
 					status[userID].Callback["delete_under_cell"] = false
 					log.Info("[%s] delete UnderCell - [%s]", update.CallbackQuery.From.UserName, dataCommand)

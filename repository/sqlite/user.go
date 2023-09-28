@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"context"
 	"database/sql"
 	"github.com/Enthreeka/go-bot-storage/bot/model"
 	"github.com/Enthreeka/go-bot-storage/repository"
@@ -16,7 +17,7 @@ func NewUserRepository(SQLite *SQLite) repository.User {
 	}
 }
 
-func (u *userRepository) Create(user *model.User) (*model.User, error) {
+func (u *userRepository) Create(ctx context.Context, user *model.User) (*model.User, error) {
 	query := `INSERT INTO "user"(id, nickname,first_name,last_name) VALUES ($1,$2,$3,$4) 
 			RETURNING id, nickname,first_name,last_name `
 
@@ -32,7 +33,7 @@ func (u *userRepository) Create(user *model.User) (*model.User, error) {
 	return createdUser, nil
 }
 
-func (u *userRepository) GetByID(id int64) (*model.User, error) {
+func (u *userRepository) GetByID(ctx context.Context, id int64) (*model.User, error) {
 	query := `SELECT id, nickname,first_name,last_name,role FROM "user" WHERE id = $1`
 	user := &model.User{}
 

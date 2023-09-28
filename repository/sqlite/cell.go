@@ -1,28 +1,29 @@
 package sqlite
 
 import (
+	"context"
 	"github.com/Enthreeka/go-bot-storage/bot/model"
 	"github.com/Enthreeka/go-bot-storage/repository"
 )
 
-type cellRepository struct {
+type cellRepositorySL struct {
 	*SQLite
 }
 
-func NewCellRepository(SQLite *SQLite) repository.Cell {
-	return &cellRepository{
+func NewCellRepositorySL(SQLite *SQLite) repository.Cell {
+	return &cellRepositorySL{
 		SQLite,
 	}
 }
 
-func (c *cellRepository) Create(cell *model.Cell) error {
+func (c *cellRepositorySL) Create(ctx context.Context, cell *model.Cell) error {
 	query := `INSERT INTO cell (name,user_id) VALUES ($1,$2)`
 
 	_, err := c.db.Exec(query, cell.Name, cell.UserID)
 	return err
 }
 
-func (c *cellRepository) DeleteByID(id int) error {
+func (c *cellRepositorySL) DeleteByID(ctx context.Context, id int) error {
 	query := `DELETE FROM cell WHERE id = $1`
 
 	_, err := c.db.Exec(query, id)
@@ -30,7 +31,7 @@ func (c *cellRepository) DeleteByID(id int) error {
 }
 
 // TODO cделать обработку ошибку no one result rows
-func (c *cellRepository) GetByUserID(id int64) ([]model.Cell, error) {
+func (c *cellRepositorySL) GetByUserID(ctx context.Context, id int64) ([]model.Cell, error) {
 	query := `SELECT id,name,user_id FROM cell WHERE user_id = $1`
 
 	rows, err := c.db.Query(query, id)

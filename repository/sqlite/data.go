@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"context"
 	"database/sql"
 	"github.com/Enthreeka/go-bot-storage/bot/model"
 	"github.com/Enthreeka/go-bot-storage/repository"
@@ -16,21 +17,21 @@ func NewDataRepository(SQLite *SQLite) repository.Data {
 	}
 }
 
-func (d *dataRepository) Create(data *model.Data) error {
+func (d *dataRepository) Create(ctx context.Context, data *model.Data) error {
 	query := `INSERT INTO data (describe,under_cells_id) VALUES ($1,$2)`
 
 	_, err := d.db.Exec(query, data.Describe, data.UnderCellID)
 	return err
 }
 
-func (d *dataRepository) Update(data *model.Data) error {
+func (d *dataRepository) Update(ctx context.Context, data *model.Data) error {
 	query := `UPDATE data SET describe = $1 WHERE under_cells_id = $2`
 
 	_, err := d.db.Exec(query, data.Describe, data.UnderCellID)
 	return err
 }
 
-func (d *dataRepository) GetByUnderCellID(underCellID int) (*model.Data, error) {
+func (d *dataRepository) GetByUnderCellID(ctx context.Context, underCellID int) (*model.Data, error) {
 	query := `SELECT  describe FROM data WHERE under_cells_id = $1`
 
 	data := &model.Data{}
@@ -45,7 +46,7 @@ func (d *dataRepository) GetByUnderCellID(underCellID int) (*model.Data, error) 
 	return data, nil
 }
 
-func (d *dataRepository) GetDataByName(dataName string, underCellID int) (*model.Data, error) {
+func (d *dataRepository) GetDataByName(ctx context.Context, dataName string, underCellID int) (*model.Data, error) {
 	query := `SELECT data.describe 
 					FROM data
 					JOIN under_cells ON data.under_cells_id = under_cells.id
@@ -59,8 +60,3 @@ func (d *dataRepository) GetDataByName(dataName string, underCellID int) (*model
 
 	return data, nil
 }
-
-//func (d *dataRepository) GetDescribeByName() {
-//	query := `SELECT `
-//
-//}

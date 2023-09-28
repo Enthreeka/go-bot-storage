@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"github.com/Enthreeka/go-bot-storage/bot/model"
 	"github.com/Enthreeka/go-bot-storage/logger"
 	"github.com/Enthreeka/go-bot-storage/repository"
@@ -8,17 +9,17 @@ import (
 )
 
 type cellController struct {
-	cellRepo      repository.Cell
-	underCellRepo repository.UnderCell
+	cellRepoSqlite repository.Cell
+	underCellRepo  repository.UnderCell
 
 	log *logger.Logger
 }
 
 func NewCellController(cellRepo repository.Cell, underCellRepo repository.UnderCell, log *logger.Logger) Cell {
 	return &cellController{
-		cellRepo:      cellRepo,
-		underCellRepo: underCellRepo,
-		log:           log,
+		cellRepoSqlite: cellRepo,
+		underCellRepo:  underCellRepo,
+		log:            log,
 	}
 }
 
@@ -28,7 +29,7 @@ func (c *cellController) CreateCell(update *tgbotapi.Update) error {
 		UserID: update.Message.Chat.ID,
 	}
 
-	err := c.cellRepo.Create(cell)
+	err := c.cellRepoSqlite.Create(context.Background(), cell)
 	if err != nil {
 		return err
 	}
@@ -38,7 +39,7 @@ func (c *cellController) CreateCell(update *tgbotapi.Update) error {
 }
 
 func (c *cellController) DeleteCell(id int) error {
-	err := c.cellRepo.DeleteByID(id)
+	err := c.cellRepoSqlite.DeleteByID(context.Background(), id)
 	if err != nil {
 		return err
 	}
@@ -47,7 +48,7 @@ func (c *cellController) DeleteCell(id int) error {
 }
 
 func (c *cellController) DeleteUnderCell(id int) error {
-	err := c.underCellRepo.DeleteByID(id)
+	err := c.underCellRepo.DeleteByID(context.Background(), id)
 	if err != nil {
 		return err
 	}
@@ -56,7 +57,7 @@ func (c *cellController) DeleteUnderCell(id int) error {
 }
 
 func (c *cellController) GetCell(id int64) ([]model.Cell, error) {
-	cells, err := c.cellRepo.GetByUserID(id)
+	cells, err := c.cellRepoSqlite.GetByUserID(context.Background(), id)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +71,7 @@ func (c *cellController) CreateUnderCell(update *tgbotapi.Update, cellID *int) e
 		Name:   update.Message.Text,
 	}
 
-	err := c.underCellRepo.Create(cell)
+	err := c.underCellRepo.Create(context.Background(), cell)
 	if err != nil {
 		return err
 	}
@@ -79,7 +80,7 @@ func (c *cellController) CreateUnderCell(update *tgbotapi.Update, cellID *int) e
 }
 
 func (c *cellController) GetUnderCell(userID int64, cellID int) ([]model.UnderCell, error) {
-	underCell, err := c.underCellRepo.GetByCellID(userID, cellID)
+	underCell, err := c.underCellRepo.GetByCellID(context.Background(), userID, cellID)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"context"
 	"github.com/Enthreeka/go-bot-storage/bot/model"
 	"github.com/Enthreeka/go-bot-storage/repository"
 )
@@ -15,21 +16,21 @@ func NewUnderCellRepository(SQLite *SQLite) repository.UnderCell {
 	}
 }
 
-func (u *underCellRepository) Create(cell *model.UnderCell) error {
+func (u *underCellRepository) Create(ctx context.Context, cell *model.UnderCell) error {
 	query := `INSERT INTO under_cells (name, cell_id) VALUES ($1,$2)`
 
 	_, err := u.db.Exec(query, cell.Name, cell.CellID)
 	return err
 }
 
-func (u *underCellRepository) DeleteByID(id int) error {
+func (u *underCellRepository) DeleteByID(ctx context.Context, id int) error {
 	query := `DELETE FROM under_cells WHERE id = $1`
 
 	_, err := u.db.Exec(query, id)
 	return err
 }
 
-func (u *underCellRepository) GetByCellID(userID int64, cellID int) ([]model.UnderCell, error) {
+func (u *underCellRepository) GetByCellID(ctx context.Context, userID int64, cellID int) ([]model.UnderCell, error) {
 	query := `SELECT under_cells.id,under_cells.cell_id,under_cells.name
 				FROM "user"
 				JOIN cell ON cell.user_id = "user".id
