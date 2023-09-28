@@ -59,6 +59,7 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 
 	//TODO изменить структуру кнопок
 	markup := tgbotapi.NewInlineKeyboardMarkup(view.UpdateDataButtonData,
+		view.RemindDataButtonData,
 		tgbotapi.NewInlineKeyboardRow(view.MainMenuButtonData),
 	)
 	msg.ReplyMarkup = &markup
@@ -102,6 +103,5 @@ func (d *dataView) ShowData(update *tgbotapi.Update) (int, error) {
 		d.log.Error("error sending text: %v", err)
 	}
 
-	d.log.Info("[%s] received text", update.CallbackQuery.Message.From.UserName)
 	return underCellID, nil
 }

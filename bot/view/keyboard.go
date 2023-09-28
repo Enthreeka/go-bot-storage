@@ -27,6 +27,8 @@ var AddDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboard
 
 var UpdateDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Изменить данные", "update_data"))
 
+var RemindDataButtonData = tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Сделать напоминание", "remind_data"))
+
 func KeyboardValidation(text string) bool {
 	// Checking for count symbol in text
 	if utf8.RuneCountInString(text) > 37 {

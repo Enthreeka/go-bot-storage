@@ -64,6 +64,7 @@ func main() {
 
 	status := make(map[int64]*model.Status)
 
+	// Maps store update.CallbackQuery.Data
 	cellData := make(map[int64]*string)
 	underCellData := make(map[int64]*string)
 
@@ -94,6 +95,7 @@ func main() {
 					status[userID].Callback["delete_cell"] = false
 					status[userID].Callback["delete_under_cell"] = false
 					status[userID].Callback["update_data"] = false
+					status[userID].Callback["remind_data"] = false
 				}
 
 				cellViewCommand.ShowCell(&update, &msg)
@@ -103,11 +105,13 @@ func main() {
 				if userStatus, ok := status[userID]; ok {
 					if userStatus.Callback["create_cell"] == true {
 						userStatus.Callback["create_cell"] = false
+						log.Info("[%s] Message-[create_cell]", update.Message.From.UserName)
 
 						cellViewCommand.CreateCell(&update, &msg)
 						cellViewCommand.ShowCell(&update, &msg)
 					} else if userStatus.Callback["create_under_cell"] == true {
 						userStatus.Callback["create_under_cell"] = false
+						log.Info("[%s] Message-[create_under_cell]", update.Message.From.UserName)
 
 						if cell, ok := cellData[userID]; ok {
 							cellViewCommand.CreateUnderCell(&update, &msg, cell)
@@ -115,6 +119,7 @@ func main() {
 						}
 					} else if userStatus.Callback["add_data"] == true {
 						userStatus.Callback["add_data"] = false
+						log.Info("[%s] Message-[add_data]", update.Message.From.UserName)
 
 						if underCellID, ok := underCellData[userID]; ok {
 							dataViewCommand.CreateData(&update, &msg, underCellID)
@@ -122,10 +127,18 @@ func main() {
 						}
 					} else if userStatus.Callback["update_data"] == true {
 						userStatus.Callback["update_data"] = false
+						log.Info("[%s] Message-[update_data]", update.Message.From.UserName)
 
-						if underCellID, ok := underCellData[userID]; ok {
-							dataViewCommand.UpdateData(&update, &msg, underCellID)
-							dataViewCommand.ShowData(&update, underCellID)
+						if underCell, ok := underCellData[userID]; ok {
+							dataViewCommand.UpdateData(&update, &msg, underCell)
+							dataViewCommand.ShowData(&update, underCell)
+						}
+					} else if userStatus.Callback["remind_data"] == true {
+						userStatus.Callback["remind_data"] = false
+						log.Info("[%s] Message-[remind_data]", update.Message.From.UserName)
+
+						if underCell, ok := underCellData[userID]; ok {
+							go dataViewCommand.RemindData(&update, underCell)
 						}
 					} else {
 						commandMail.BotSendDefault(&msg)
@@ -180,12 +193,16 @@ func main() {
 
 				status[userID].Callback["update_data"] = true
 				callbackMail.BotSendTextUpdateData(userID)
+			case "remind_data":
+				log.Info("[%s] CallbackQuery-[%s]", update.CallbackQuery.From.UserName, dataCommand)
+
+				status[userID].Callback["remind_data"] = true
+				callbackMail.BotSendTextRemindData(userID)
 			}
 
 			// Defines "cell_name_id" , "underCell_name_id" , "delete_cell" , "delete_under_cell" buttons
 			if model.IsCell(dataCommand) {
 				//TODO обработка ошибки
-
 				// Checking for delete cell user state. It is "delete_cell" button
 				if status[userID].Callback["delete_cell"] == true {
 					status[userID].Callback["delete_cell"] = false
@@ -204,7 +221,6 @@ func main() {
 					}
 					cellData[userID] = &update.CallbackQuery.Data
 				}
-
 			} else if model.IsUnderCell(dataCommand) {
 				//TODO обработка ошибки
 				if status[userID].Callback["delete_under_cell"] == true {

@@ -1,6 +1,7 @@
 package command
 
 import (
+	"errors"
 	"fmt"
 	"github.com/Enthreeka/go-bot-storage/bot/controller"
 	"github.com/Enthreeka/go-bot-storage/bot/model"
@@ -8,6 +9,7 @@ import (
 	"github.com/Enthreeka/go-bot-storage/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strings"
+	"time"
 )
 
 type dataView struct {
@@ -90,6 +92,7 @@ func (d *dataView) ShowData(update *tgbotapi.Update, cellData *string) error {
 		return err
 	}
 	markup := tgbotapi.NewInlineKeyboardMarkup(view.UpdateDataButtonData,
+		view.RemindDataButtonData,
 		tgbotapi.NewInlineKeyboardRow(view.MainMenuButtonData),
 	)
 	msg.ReplyMarkup = &markup
@@ -123,6 +126,84 @@ func (d *dataView) ShowData(update *tgbotapi.Update, cellData *string) error {
 	_, err = d.bot.Send(msg)
 	if err != nil {
 		d.log.Error("error sending text: %v", err)
+	}
+
+	return nil
+}
+
+func (d *dataView) RemindData(update *tgbotapi.Update, data *string) error {
+	userID := update.Message.Chat.ID
+	msg := tgbotapi.NewMessage(userID, "")
+
+	callTime, err := time.ParseInLocation("15:04 02.01.2006", update.Message.Text, time.Local)
+	if err != nil {
+		d.log.Error("invalid date format by [%s]: %s", update.Message.From.UserName, update.Message.Text)
+		msg.Text = "Неправильно введенный формат данных!"
+		_, err := d.bot.Send(msg)
+		if err != nil {
+			d.log.Error("failed to send message in RemindData")
+		}
+		return err
+	}
+
+	// TODO валидацию на не более года
+	if !callTime.After(time.Now()) {
+		d.log.Error("the requested time is longer than the present [%s]: %s", update.Message.From.UserName, update.Message.Text)
+		msg.Text = "Неправильно введенный формат данных!"
+		_, err := d.bot.Send(msg)
+		if err != nil {
+			d.log.Error("failed to send message in RemindData")
+		}
+		return errors.New("callTime is greater than time.Now()")
+	}
+
+	duration := callTime.Sub(time.Now())
+	waitTime := time.After(duration)
+	for {
+		select {
+		case <-waitTime:
+			underCellID, name := model.FindIdName(*data)
+
+			data, err := d.dataController.GetData(underCellID)
+			if err != nil {
+				d.log.Error("failed to get data in reminder by [%s]: %v", update.Message.From.UserName, err)
+				return err
+			}
+
+			dataFile, file := model.IsFile(data.Describe)
+			if file {
+				fileID := tgbotapi.FileID(dataFile)
+
+				msg := tgbotapi.NewDocument(userID, fileID)
+				msg.ParseMode = tgbotapi.ModeHTML
+
+				msg.Caption = fmt.Sprintf("Спешу напомнить об:\n<b>%s</b>\n", name)
+
+				_, err = d.bot.Send(msg)
+				if err != nil {
+					d.log.Error("error sending document: %v", err)
+					return err
+				}
+				return nil
+			}
+
+			msg.ParseMode = tgbotapi.ModeHTML
+			var builder strings.Builder
+			builder.WriteString("Спешу напомнить об:\n")
+			builder.WriteString("<b>")
+			builder.WriteString(name)
+			builder.WriteString("</b> ")
+			builder.WriteString("\n\n")
+			builder.WriteString(data.Describe)
+
+			msg.Text = builder.String()
+
+			_, err = d.bot.Send(msg)
+			if err != nil {
+				d.log.Error("failed to send message in RemindData")
+				return err
+			}
+		}
 	}
 
 	return nil

@@ -1,8 +1,10 @@
 package callback
 
 import (
+	"fmt"
 	"github.com/Enthreeka/go-bot-storage/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"time"
 )
 
 type callbackMail struct {
@@ -74,5 +76,19 @@ func (c *callbackMail) BotSendTextUpdateData(userID int64) {
 	_, err := c.bot.Send(msg)
 	if err != nil {
 		c.log.Error("failed to send message in CallbackQuery [update_data] %v", err)
+	}
+}
+
+func (c *callbackMail) BotSendTextRemindData(userID int64) {
+	currentTime := time.Now().Format("15:04 02.01.2006")
+
+	text := fmt.Sprintf("Создайте напоминание.\nОтправьте дату и время в формате <b>%s</b>."+
+		"\nВ случае, если вы передумали, вызовите команду /start", currentTime)
+	msg := tgbotapi.NewMessage(userID, text)
+	msg.ParseMode = tgbotapi.ModeHTML
+
+	_, err := c.bot.Send(msg)
+	if err != nil {
+		c.log.Error("failed to send message in CallbackQuery [remind_data] %v", err)
 	}
 }
